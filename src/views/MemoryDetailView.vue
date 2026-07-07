@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { useLoad } from '@/composables/useLoad'
 import { useMemoriesStore } from '@/stores/memories'
@@ -67,6 +67,27 @@ async function toggleReaction(emoji: string) {
 async function toggleFavorite() {
   if (memory.value) { await mem.toggleFavorite(memory.value.id); toast.success(memory.value.is_favorite ? 'Favorited' : 'Unfavorited') }
 }
+
+// ---- lightbox ----
+const lightbox = ref<number | null>(null)
+function stepLightbox(delta: number) {
+  if (lightbox.value === null || !images.value.length) return
+  lightbox.value = (lightbox.value + delta + images.value.length) % images.value.length
+}
+function onLightboxKey(e: KeyboardEvent) {
+  if (lightbox.value === null) return
+  if (e.key === 'Escape') lightbox.value = null
+  else if (e.key === 'ArrowRight') stepLightbox(1)
+  else if (e.key === 'ArrowLeft') stepLightbox(-1)
+}
+watch(lightbox, (v) => {
+  if (v !== null) { window.addEventListener('keydown', onLightboxKey); document.body.style.overflow = 'hidden' }
+  else { window.removeEventListener('keydown', onLightboxKey); document.body.style.overflow = '' }
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onLightboxKey)
+  document.body.style.overflow = ''
+})
 </script>
 
 <template>
@@ -101,10 +122,13 @@ async function toggleFavorite() {
       <p v-if="memory.caption" class="text-night-700 dark:text-night-100 whitespace-pre-wrap">{{ memory.caption }}</p>
 
       <div v-if="images.length" class="grid gap-3" :class="images.length === 1 ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-3'">
-        <a v-for="img in images" :key="img.id" :href="publicUrl('memories', img.storage_path)" target="_blank"
-           class="block rounded-2xl overflow-hidden bg-night-100 dark:bg-night-800 aspect-square">
-          <img :src="publicUrl('memories', img.storage_path)" class="h-full w-full object-cover" alt="" />
-        </a>
+        <button v-for="(img, i) in images" :key="img.id" type="button"
+                class="block rounded-2xl overflow-hidden bg-night-100 dark:bg-night-800 aspect-square"
+                :aria-label="`View photo ${i + 1} of ${images.length}`"
+                @click="lightbox = i">
+          <img :src="publicUrl('memories', img.storage_path)" loading="lazy" decoding="async"
+               class="h-full w-full object-cover" alt="" />
+        </button>
       </div>
       <EmptyState v-else icon="camera" title="No photos yet" body="Edit this memory to upload photos." />
 
@@ -127,6 +151,34 @@ async function toggleFavorite() {
       </Card>
 
       <MemoryEditor v-model:open="editing" :editing="memory" />
+
+      <!-- Lightbox -->
+      <teleport to="body">
+        <transition name="fade">
+          <div v-if="lightbox !== null" class="fixed inset-0 z-[90] flex items-center justify-center bg-black/90 p-4"
+               role="dialog" aria-modal="true" @click.self="lightbox = null">
+            <img :src="publicUrl('memories', images[lightbox].storage_path)"
+                 class="max-h-[88vh] max-w-[94vw] rounded-xl object-contain shadow-2xl" alt="" />
+            <button class="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                    aria-label="Close" @click="lightbox = null">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+            <template v-if="images.length > 1">
+              <button class="absolute left-3 top-1/2 -translate-y-1/2 grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                      aria-label="Previous photo" @click.stop="stepLightbox(-1)">
+                <Icon name="chevron_left" :size="20" />
+              </button>
+              <button class="absolute right-3 top-1/2 -translate-y-1/2 grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                      aria-label="Next photo" @click.stop="stepLightbox(1)">
+                <Icon name="chevron_right" :size="20" />
+              </button>
+              <div class="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-white/10 px-3 py-1 text-xs text-white tabular-nums">
+                {{ lightbox + 1 }} / {{ images.length }}
+              </div>
+            </template>
+          </div>
+        </transition>
+      </teleport>
     </template>
 
     <EmptyState v-else icon="search" title="Memory not found" body="It may have been deleted." />

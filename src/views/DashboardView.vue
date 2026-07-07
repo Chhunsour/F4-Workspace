@@ -18,6 +18,8 @@ import RecentMemories from '@/components/dashboard/RecentMemories.vue'
 import QuickNotes from '@/components/dashboard/QuickNotes.vue'
 import SufferingCard from '@/components/dashboard/SufferingCard.vue'
 import SemesterProgress from '@/components/dashboard/SemesterProgress.vue'
+import FriendActivity from '@/components/dashboard/FriendActivity.vue'
+import ThrowbackCard from '@/components/dashboard/ThrowbackCard.vue'
 
 const auth = useAuthStore()
 
@@ -90,8 +92,10 @@ onMounted(async () => {
         <ProjectDeadlines />
       </div>
       <div class="space-y-5">
+        <FriendActivity />
         <StudyStreak />
         <SemesterProgress />
+        <ThrowbackCard />
         <QuickNotes />
         <SufferingCard />
       </div>

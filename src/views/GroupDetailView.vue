@@ -127,7 +127,7 @@ async function deleteGroup() {
           <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
             <RouterLink v-for="m in sharedMemories.slice(0,10)" :key="m.id" :to="`/memories/${m.id}`"
                         class="aspect-square rounded-xl overflow-hidden bg-night-100 dark:bg-night-800 relative">
-              <img v-if="mem.thumbnailUrl(m.id)" :src="mem.thumbnailUrl(m.id)!" class="absolute inset-0 h-full w-full object-cover" alt="" />
+              <img v-if="mem.thumbnailUrl(m.id)" :src="mem.thumbnailUrl(m.id)!" loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover" alt="" />
             </RouterLink>
           </div>
         </Card>

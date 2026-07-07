@@ -86,6 +86,12 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async signOut() {
+      // Drop the notifications realtime channel so a later sign-in
+      // (possibly another account) subscribes fresh.
+      const { useNotificationsStore } = await import('@/stores/notifications')
+      const notifications = useNotificationsStore()
+      notifications.unsubscribe()
+      notifications.$reset()
       await supabase.auth.signOut()
       this.userId = null
       this.email  = null

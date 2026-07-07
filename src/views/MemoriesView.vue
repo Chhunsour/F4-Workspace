@@ -21,6 +21,7 @@ const route = useRoute(); const router = useRouter()
 
 const view = ref<'gallery'|'timeline'|'album'>('gallery')
 const activeAlbum = ref<string>('')
+const favoritesOnly = ref(false)
 const editorOpen = ref(false)
 
 const { error, loading, load } = useLoad(async () => {
@@ -37,6 +38,7 @@ function openNew() {
 const displayed = computed(() => {
   let items = [...mem.items]
   if (activeAlbum.value) items = items.filter(m => m.album === activeAlbum.value)
+  if (favoritesOnly.value) items = items.filter(m => m.is_favorite)
   return items
 })
 
@@ -69,10 +71,14 @@ const byMonth = computed(() => {
       </div>
     </div>
 
-    <div v-if="mem.albums.length" class="flex flex-wrap gap-2">
-      <button @click="activeAlbum = ''"
-              :class="['chip transition-colors', activeAlbum === '' ? '!bg-brand-600 !text-white' : '']">All</button>
-      <button v-for="a in mem.albums" :key="a" @click="activeAlbum = a"
+    <div v-if="mem.albums.length || mem.items.some(m => m.is_favorite)" class="flex flex-wrap gap-2">
+      <button @click="activeAlbum = ''; favoritesOnly = false"
+              :class="['chip transition-colors', activeAlbum === '' && !favoritesOnly ? '!bg-brand-600 !text-white' : '']">All</button>
+      <button @click="favoritesOnly = !favoritesOnly"
+              :class="['chip transition-colors inline-flex items-center gap-1', favoritesOnly ? '!bg-brand-600 !text-white' : '']">
+        <Icon name="heart" :size="12" /> Favorites
+      </button>
+      <button v-for="a in mem.albums" :key="a" @click="activeAlbum = activeAlbum === a ? '' : a"
               :class="['chip transition-colors', activeAlbum === a ? '!bg-brand-600 !text-white' : '']">
         {{ a }}
       </button>
@@ -92,7 +98,7 @@ const byMonth = computed(() => {
     <div v-else-if="view === 'gallery'" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
       <RouterLink v-for="m in displayed" :key="m.id" :to="`/memories/${m.id}`"
                   class="group aspect-square rounded-2xl relative overflow-hidden bg-night-100 dark:bg-night-800 border border-surface-border dark:border-night-700">
-        <img v-if="mem.thumbnailUrl(m.id)" :src="mem.thumbnailUrl(m.id)!"
+        <img v-if="mem.thumbnailUrl(m.id)" :src="mem.thumbnailUrl(m.id)!" loading="lazy" decoding="async"
              class="absolute inset-0 h-full w-full object-cover group-hover:scale-[1.04] transition-transform duration-500 ease-smooth" alt="" />
         <div v-else class="absolute inset-0 grid place-items-center text-night-300 dark:text-night-500"><Icon name="camera" :size="28" /></div>
         <div class="img-caption text-xs">
@@ -113,7 +119,7 @@ const byMonth = computed(() => {
           <RouterLink v-for="m in items" :key="m.id" :to="`/memories/${m.id}`"
                       class="card p-0 overflow-hidden card-hover">
             <div class="aspect-video relative bg-night-100 dark:bg-night-800">
-              <img v-if="mem.thumbnailUrl(m.id)" :src="mem.thumbnailUrl(m.id)!" class="absolute inset-0 h-full w-full object-cover" alt="" />
+              <img v-if="mem.thumbnailUrl(m.id)" :src="mem.thumbnailUrl(m.id)!" loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover" alt="" />
             </div>
             <div class="p-3">
               <div class="font-medium truncate">{{ m.title || 'Untitled' }}</div>

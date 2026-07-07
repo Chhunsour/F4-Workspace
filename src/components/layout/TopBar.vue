@@ -3,6 +3,7 @@ import { RouterLink, useRoute } from 'vue-router'
 import ThemeToggle from '@/components/ui/ThemeToggle.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import Logo from './Logo.vue'
+import NotificationBell from './NotificationBell.vue'
 import { useAuthStore } from '@/stores/auth'
 import { computed } from 'vue'
 
@@ -26,6 +27,7 @@ const title = computed(() => titleMap[String(route.name ?? 'dashboard')] ?? 'Uni
     </RouterLink>
     <h1 class="text-base font-semibold tracking-tight truncate">{{ title }}</h1>
     <div class="ml-auto flex items-center gap-2">
+      <NotificationBell />
       <ThemeToggle />
       <RouterLink to="/profile" aria-label="Profile">
         <Avatar :src="auth.avatarPublicUrl" :name="auth.displayName" size="md" />

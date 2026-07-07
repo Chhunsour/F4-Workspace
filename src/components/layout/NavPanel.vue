@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import Avatar from '@/components/ui/Avatar.vue'
+import NotificationBell from './NotificationBell.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useSubjectsStore } from '@/stores/subjects'
 import { useScheduleStore } from '@/stores/schedule'
@@ -59,17 +60,19 @@ const filteredSubjects = computed(() => {
 <template>
   <aside class="hidden lg:flex glass-panel w-[300px] shrink-0 flex-col overflow-hidden">
     <!-- Profile -->
-    <RouterLink to="/profile"
-      class="flex items-center gap-3 px-4 pt-4 pb-3 group">
-      <Avatar :src="auth.avatarPublicUrl" :name="auth.displayName" size="lg" class="ring-2 ring-white/50 dark:ring-white/10" />
-      <div class="min-w-0 flex-1">
-        <div class="flex items-center gap-1 font-semibold truncate text-night-900 dark:text-white">
-          {{ auth.displayName }}
-          <Icon name="chevron_right" :size="14" class="text-night-400 rotate-90 transition-transform group-hover:translate-y-0.5" />
+    <div class="flex items-center gap-3 px-4 pt-4 pb-3">
+      <RouterLink to="/profile" class="flex min-w-0 flex-1 items-center gap-3 group">
+        <Avatar :src="auth.avatarPublicUrl" :name="auth.displayName" size="lg" class="ring-2 ring-white/50 dark:ring-white/10" />
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-1 font-semibold truncate text-night-900 dark:text-white">
+            {{ auth.displayName }}
+            <Icon name="chevron_right" :size="14" class="text-night-400 rotate-90 transition-transform group-hover:translate-y-0.5" />
+          </div>
+          <div class="text-xs text-night-500 dark:text-night-300 truncate">{{ auth.email }}</div>
         </div>
-        <div class="text-xs text-night-500 dark:text-night-300 truncate">{{ auth.email }}</div>
-      </div>
-    </RouterLink>
+      </RouterLink>
+      <NotificationBell />
+    </div>
 
     <div class="mx-4 divider" />
 

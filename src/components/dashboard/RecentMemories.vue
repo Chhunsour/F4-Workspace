@@ -23,7 +23,7 @@ const items = computed(() => mem.recent.slice(0,4))
     <div v-else class="grid grid-cols-2 gap-2 sm:grid-cols-4">
       <RouterLink v-for="m in items" :key="m.id" :to="`/memories/${m.id}`"
                   class="group relative rounded-xl overflow-hidden aspect-square bg-night-100 dark:bg-night-800 border border-surface-border dark:border-night-700">
-        <img v-if="mem.thumbnailUrl(m.id)" :src="mem.thumbnailUrl(m.id)!"
+        <img v-if="mem.thumbnailUrl(m.id)" :src="mem.thumbnailUrl(m.id)!" loading="lazy" decoding="async"
              class="absolute inset-0 h-full w-full object-cover group-hover:scale-[1.03] transition-transform duration-500 ease-smooth"
              alt="" />
         <div v-else class="absolute inset-0 grid place-items-center text-night-300 dark:text-night-500">
