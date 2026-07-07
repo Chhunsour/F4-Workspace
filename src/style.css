@@ -1,0 +1,231 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  /* Glass surface variables — tuned per theme, consumed by the .glass-* classes. */
+  --glass-bg: rgba(255, 255, 255, 0.62);
+  --glass-bg-strong: rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --glass-hair: rgba(17, 24, 39, 0.08);
+  --panel-bg: rgba(246, 247, 249, 0.55);
+}
+html.dark {
+  color-scheme: dark;
+  --glass-bg: rgba(255, 255, 255, 0.055);
+  --glass-bg-strong: rgba(255, 255, 255, 0.09);
+  --glass-border: rgba(255, 255, 255, 0.10);
+  --glass-hair: rgba(255, 255, 255, 0.08);
+  --panel-bg: rgba(20, 24, 33, 0.55);
+}
+
+html, body, #app {
+  height: 100%;
+}
+
+body {
+  @apply text-night-900 antialiased font-sans;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.011em;
+  /* Ambient light-mode canvas the frosted panels refract over. */
+  background-color: #eceef2;
+  background-image:
+    radial-gradient(60rem 60rem at 12% -10%, rgba(58, 104, 255, 0.10), transparent 60%),
+    radial-gradient(50rem 50rem at 100% 0%, rgba(255, 202, 71, 0.10), transparent 55%),
+    radial-gradient(70rem 70rem at 50% 120%, rgba(58, 104, 255, 0.06), transparent 60%);
+  background-attachment: fixed;
+}
+html.dark body {
+  @apply text-night-50;
+  background-color: #0b0e15;
+  background-image:
+    radial-gradient(60rem 60rem at 10% -10%, rgba(58, 104, 255, 0.16), transparent 60%),
+    radial-gradient(52rem 52rem at 100% 0%, rgba(255, 182, 31, 0.08), transparent 55%),
+    radial-gradient(70rem 70rem at 50% 120%, rgba(40, 60, 120, 0.20), transparent 60%);
+}
+
+/* Focus ring — keyboard only */
+:focus-visible {
+  @apply outline-none ring-2 ring-brand-500/70 ring-offset-2;
+  --tw-ring-offset-color: transparent;
+}
+html.dark :focus-visible {
+  @apply ring-brand-400/70;
+}
+
+/* Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120,130,160,0.28) transparent;
+}
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: rgba(120,130,160,0.28); border-radius: 9999px; border: 2px solid transparent; background-clip: padding-box; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(120,130,160,0.45); background-clip: padding-box; }
+
+/* Page transitions */
+.fade-enter-active, .fade-leave-active { transition: opacity 200ms ease, transform 260ms cubic-bezier(0.22,1,0.36,1), filter 260ms ease; }
+.fade-enter-from { opacity: 0; transform: translateY(6px); filter: blur(4px); }
+.fade-leave-to   { opacity: 0; transform: translateY(-4px); filter: blur(2px); }
+
+@layer components {
+  /* ---------- Typography scale ---------- */
+  .t-page   { @apply text-2xl sm:text-[28px] font-semibold tracking-tight text-night-900 dark:text-white; }
+  .t-section{ @apply text-[11px] font-semibold uppercase tracking-[0.09em] text-night-400 dark:text-night-300; }
+  .t-card   { @apply text-[15px] font-semibold text-night-900 dark:text-white; }
+  .t-body   { @apply text-sm text-night-700 dark:text-night-100; }
+  .t-meta   { @apply text-xs text-night-500 dark:text-night-300; }
+  .t-label  { @apply text-[13px] font-medium text-night-700 dark:text-night-100; }
+
+  /* ---------- Liquid glass surfaces ----------
+     .glass-panel = large translucent chrome (nav panel, content shell)
+     .glass-card / .card = content cards
+     .glass-rail = the dark icon rail (always dark, both themes)               */
+  .glass-panel {
+    background: var(--panel-bg);
+    @apply backdrop-blur-2xl border rounded-3xl;
+    border-color: var(--glass-border);
+    box-shadow: 0 20px 60px -24px rgba(17,24,39,0.28), inset 0 1px 0 0 rgba(255,255,255,0.5);
+  }
+  html.dark .glass-panel {
+    box-shadow: 0 24px 64px -24px rgba(0,0,0,0.6), inset 0 1px 0 0 rgba(255,255,255,0.06);
+  }
+
+  .card, .glass-card {
+    background: var(--glass-bg);
+    @apply backdrop-blur-xl border rounded-2xl shadow-glass transition-[box-shadow,transform,background-color] duration-300;
+    border-color: var(--glass-border);
+  }
+  html.dark .card, html.dark .glass-card {
+    @apply shadow-glassDk;
+  }
+  .card-hover {
+    @apply hover:-translate-y-0.5;
+  }
+  .card-hover:hover {
+    background: var(--glass-bg-strong);
+  }
+
+  /* Solid-ish inner tile used inside glass cards (list rows, stat wells) */
+  .tile {
+    @apply rounded-xl border transition-colors duration-200;
+    background: rgba(255,255,255,0.4);
+    border-color: var(--glass-hair);
+  }
+  html.dark .tile {
+    background: rgba(255,255,255,0.035);
+  }
+  .tile-hover:hover {
+    background: rgba(255,255,255,0.6);
+  }
+  html.dark .tile-hover:hover {
+    background: rgba(255,255,255,0.06);
+  }
+
+  /* ---------- Icon rail (always dark glass) ---------- */
+  .glass-rail {
+    background: rgba(22, 24, 30, 0.82);
+    @apply backdrop-blur-xl border rounded-[26px] shadow-rail;
+    border-color: rgba(255,255,255,0.08);
+  }
+  .rail-item {
+    @apply relative flex h-11 w-11 items-center justify-center rounded-2xl text-night-300
+           transition-all duration-200 hover:text-white;
+  }
+  .rail-item:hover { background: rgba(255,255,255,0.08); }
+  .rail-item-active {
+    @apply text-white;
+    background: rgba(255,255,255,0.14);
+    box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.18), 0 6px 16px -6px rgba(0,0,0,0.5);
+  }
+
+  /* ---------- Nav panel items ---------- */
+  .nav-item {
+    @apply relative flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-night-600 dark:text-night-200
+           transition-colors duration-200;
+  }
+  .nav-item:hover {
+    background: rgba(255,255,255,0.5);
+    @apply text-night-900 dark:text-white;
+  }
+  html.dark .nav-item:hover { background: rgba(255,255,255,0.06); }
+  .nav-item-active {
+    background: var(--glass-bg-strong);
+    @apply text-night-900 dark:text-white font-semibold shadow-glassSm;
+    border: 1px solid var(--glass-border);
+  }
+  html.dark .nav-item-active { @apply shadow-glassDk; }
+
+  /* ---------- Chips / badges ---------- */
+  .chip {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium
+           text-night-700 dark:text-night-100;
+    background: rgba(255,255,255,0.5);
+    border: 1px solid var(--glass-hair);
+  }
+  html.dark .chip { background: rgba(255,255,255,0.06); }
+
+  .count-pill {
+    @apply inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-md text-[11px] font-semibold
+           text-night-500 dark:text-night-300;
+    background: rgba(17,24,39,0.06);
+  }
+  html.dark .count-pill { background: rgba(255,255,255,0.08); }
+
+  .divider { @apply border-t; border-color: var(--glass-hair); }
+
+  /* ---------- Form controls (glass) ---------- */
+  .input-base {
+    @apply w-full rounded-xl px-3.5 py-2.5 text-sm min-h-[42px] backdrop-blur-md
+           text-night-900 dark:text-night-50 placeholder:text-night-400 dark:placeholder:text-night-400
+           transition-[border-color,box-shadow,background-color] duration-200 border;
+    background: rgba(255,255,255,0.45);
+    border-color: var(--glass-border);
+  }
+  html.dark .input-base { background: rgba(255,255,255,0.04); }
+  .input-base:focus {
+    @apply border-brand-500/70 dark:border-brand-400/70 ring-2 ring-brand-500/15 dark:ring-brand-400/20;
+    background: rgba(255,255,255,0.62);
+  }
+  html.dark .input-base:focus { background: rgba(255,255,255,0.07); }
+
+  .link {
+    @apply text-brand-600 dark:text-brand-300 font-medium hover:text-brand-700 dark:hover:text-brand-200
+           underline-offset-2 hover:underline transition-colors;
+  }
+
+  /* ---------- Loading skeleton (gradient-free opacity pulse) ---------- */
+  .skeleton {
+    @apply rounded-lg;
+    background: rgba(120,130,160,0.14);
+    animation: skeletonPulse 1.5s ease-in-out infinite;
+  }
+
+  /* ---------- Image caption scrim ---------- */
+  .img-caption {
+    @apply absolute inset-x-0 bottom-0 p-3 text-white;
+    background: rgba(11,14,21,0.5);
+    backdrop-filter: blur(6px) saturate(120%);
+  }
+}
+
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+
+/* Tappable press feedback */
+button, a, [role="button"] { -webkit-tap-highlight-color: transparent; }
+.press { @apply active:scale-[0.98] transition-transform duration-100; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .fade-enter-from, .fade-leave-to { filter: none !important; }
+}

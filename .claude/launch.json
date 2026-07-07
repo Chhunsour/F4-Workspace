@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "uni-life",
+      "runtimeExecutable": "/bin/sh",
+      "runtimeArgs": [
+        "-c",
+        "cd /Users/m4/uni-life && exec /Users/m4/.local/node/bin/node /Users/m4/uni-life/node_modules/vite/bin/vite.js --host --port 5173"
+      ],
+      "port": 5173
+    }
+  ]
+}
