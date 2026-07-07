@@ -15,7 +15,6 @@ import Skeleton from '@/components/ui/Skeleton.vue'
 import AssignmentRow from '@/components/assignments/AssignmentRow.vue'
 import AssignmentEditor from '@/components/assignments/AssignmentEditor.vue'
 import type { Assignment } from '@/types'
-import { STATUS_LABELS } from '@/types'
 
 const store = useAssignmentsStore()
 const subjects = useSubjectsStore()
@@ -38,9 +37,15 @@ function openNew() {
 }
 function openEdit(a: Assignment) { editing.value = a; editorOpen.value = true }
 
+// Student-simple grouping: To Do / Doing / Done. Legacy 'review' rows fold into Doing.
+const SECTIONS = [
+  { key: 'todo',        label: 'To Do' },
+  { key: 'in_progress', label: 'Doing' },
+  { key: 'completed',   label: 'Done'  },
+] as const
 const grouped = computed(() => {
-  const g: Record<string, Assignment[]> = { todo: [], in_progress: [], review: [], completed: [] }
-  for (const a of store.filtered) g[a.status]?.push(a)
+  const g: Record<string, Assignment[]> = { todo: [], in_progress: [], completed: [] }
+  for (const a of store.filtered) g[a.status === 'review' ? 'in_progress' : a.status]?.push(a)
   return g
 })
 
@@ -76,8 +81,8 @@ const subjectOptions = computed(() => [{ value: '', label: 'All subjects' }, ...
         ]" />
         <Select v-model="store.filter.status as any" :options="[
           { value: '', label: 'Any status' },
-          { value: 'todo', label: 'To Do' },{ value: 'in_progress', label: 'In Progress' },
-          { value: 'review', label: 'Review' },{ value: 'completed', label: 'Completed' },
+          { value: 'todo', label: 'To Do' },{ value: 'in_progress', label: 'Doing' },
+          { value: 'completed', label: 'Done' },
         ]" />
       </div>
     </Card>
@@ -88,17 +93,17 @@ const subjectOptions = computed(() => [{ value: '', label: 'All subjects' }, ...
     </EmptyState>
 
     <div v-else class="space-y-8">
-      <section v-for="col in (['todo','in_progress','review','completed'] as const)" :key="col">
-        <div class="flex items-center gap-3 mb-2">
-          <h3 class="text-sm font-semibold text-night-500 uppercase tracking-wide">
-            {{ STATUS_LABELS[col].label }}
-          </h3>
-          <span class="chip">{{ grouped[col].length }}</span>
-        </div>
-        <div v-if="grouped[col].length" class="space-y-2">
-          <AssignmentRow v-for="a in grouped[col]" :key="a.id" :item="a" @edit="openEdit" />
-        </div>
-        <div v-else class="text-xs text-night-400 italic px-4 py-2">nothing here</div>
+      <section v-for="col in SECTIONS" :key="col.key">
+        <template v-if="grouped[col.key].length || col.key === 'todo'">
+          <div class="flex items-center gap-3 mb-2">
+            <h3 class="text-sm font-semibold text-night-500 uppercase tracking-wide">{{ col.label }}</h3>
+            <span class="chip">{{ grouped[col.key].length }}</span>
+          </div>
+          <div v-if="grouped[col.key].length" class="space-y-2">
+            <AssignmentRow v-for="a in grouped[col.key]" :key="a.id" :item="a" @edit="openEdit" />
+          </div>
+          <div v-else class="text-xs text-night-400 italic px-4 py-2">nothing here</div>
+        </template>
       </section>
     </div>
 

@@ -113,6 +113,15 @@ export const useProjectsStore = defineStore('projects', {
       await this.recalcProgress(t.project_id)
     },
 
+    async removeMember(project_id: string, user_id: string) {
+      const { error } = await supabase.from('project_members').delete()
+        .eq('project_id', project_id).eq('user_id', user_id)
+      if (error) throw error
+      if (this.detail?.project.id === project_id) {
+        this.detail.members = this.detail.members.filter(m => m.user_id !== user_id)
+      }
+    },
+
     async recalcProgress(project_id: string) {
       if (!this.detail || this.detail.project.id !== project_id) return
       const total = this.detail.tasks.length

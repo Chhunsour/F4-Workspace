@@ -76,9 +76,9 @@ function openNew() {
           </div>
         </div>
         <div class="mt-3 flex items-center gap-2 text-xs text-night-500 flex-wrap">
-          <span v-if="p.deadline" class="chip">📅 {{ fmtDate(p.deadline, { month:'short', day:'numeric' }) }}</span>
+          <span v-if="p.deadline" class="chip"><Icon name="clock" :size="12" /> {{ fmtDate(p.deadline, { month:'short', day:'numeric' }) }}</span>
           <span v-if="subjects.byId(p.subject_id)" class="chip">{{ subjects.byId(p.subject_id)!.name }}</span>
-          <span v-if="p.group_id" class="chip">👥 group</span>
+          <span v-if="p.group_id" class="chip"><Icon name="groups" :size="12" /> group</span>
           <span class="chip capitalize">{{ p.status.replace('_',' ') }}</span>
         </div>
       </RouterLink>

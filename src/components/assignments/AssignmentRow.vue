@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { useAssignmentsStore } from '@/stores/assignments'
 import { useSubjectsStore } from '@/stores/subjects'
 import { fmtDate, fmtTime, humanCountdown, classNames } from '@/lib/utils'
-import { PRIORITY_LABELS, STATUS_LABELS } from '@/types'
+import { PRIORITY_LABELS } from '@/types'
 import Badge from '@/components/ui/Badge.vue'
 import Icon from '@/components/ui/Icon.vue'
 import { useNow } from '@/composables/useCountdown'
@@ -57,8 +57,7 @@ async function toggle() {
                :tone="'bg-night-100 text-night-700 dark:bg-night-700 dark:text-night-100'">
           {{ subjects.byId(props.item.subject_id)!.name }}
         </Badge>
-        <Badge :tone="PRIORITY_LABELS[props.item.priority].tone">{{ PRIORITY_LABELS[props.item.priority].label }}</Badge>
-        <Badge :tone="STATUS_LABELS[props.item.status].tone">{{ STATUS_LABELS[props.item.status].label }}</Badge>
+        <Badge v-if="props.item.priority !== 'normal'" :tone="PRIORITY_LABELS[props.item.priority].tone">{{ PRIORITY_LABELS[props.item.priority].label }}</Badge>
         <Badge v-if="due"
                :tone="isOverdue
                         ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-200'
@@ -68,7 +67,6 @@ async function toggle() {
           <span v-if="props.item.due_time"> {{ fmtTime(props.item.due_time) }}</span>
           <span> · {{ isOverdue ? 'overdue' : 'in ' + humanCountdown(due, now) }}</span>
         </Badge>
-        <span v-if="props.item.progress > 0 && props.item.status !== 'completed'" class="text-night-500">· {{ props.item.progress }}%</span>
       </div>
     </div>
 

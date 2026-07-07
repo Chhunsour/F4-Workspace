@@ -32,14 +32,16 @@ onBeforeUnmount(() => window.clearInterval(timer))
 
 const { error, loading, load } = useLoad(() => Promise.all([schedule.fetch(), subjects.fetch()]))
 
-// ---- week (Mon → Sun, with real dates for the current week) ----
+// ---- week (Mon → Sun; weekOffset pages through weeks) ----
 const todayNum = computed(() => now.value.getDay())
-const isToday = (d: number) => d === todayNum.value
+const weekOffset = ref(0)
+// "today" styling and the now-line only apply while viewing the current week
+const isToday = (d: number) => weekOffset.value === 0 && d === todayNum.value
 
 const days = computed(() => {
   const monday = new Date(now.value)
   monday.setHours(0, 0, 0, 0)
-  monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7))
+  monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7) + weekOffset.value * 7)
   return [1, 2, 3, 4, 5, 6, 0].map((weekday, i) => {
     const date = new Date(monday)
     date.setDate(monday.getDate() + i)
@@ -90,6 +92,7 @@ function fmtHour(m: number) {
 const nowMin = computed(() => now.value.getHours() * 60 + now.value.getMinutes())
 const nowInRange = computed(() => nowMin.value >= range.value.start && nowMin.value <= range.value.end)
 const isLive = (c: ClassSchedule) =>
+  weekOffset.value === 0 &&
   c.weekday === todayNum.value && nowMin.value >= toMin(c.start_time) && nowMin.value < toMin(c.end_time)
 
 // ---- next class ----
@@ -102,6 +105,7 @@ const next = computed(() => {
 
 const gridEl = ref<HTMLElement | null>(null)
 function goToday() {
+  weekOffset.value = 0
   activeDay.value = todayNum.value
   gridEl.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
@@ -129,7 +133,9 @@ function openEdit(c: ClassSchedule) {
       </div>
       <div class="flex items-center gap-2">
         <span class="mr-1 hidden text-sm tabular-nums text-night-500 dark:text-night-300 sm:block">{{ weekRange }}</span>
+        <Button variant="secondary" size="sm" aria-label="Previous week" @click="weekOffset--"><Icon name="chevron_left" :size="16" /></Button>
         <Button variant="secondary" size="sm" @click="goToday">Today</Button>
+        <Button variant="secondary" size="sm" aria-label="Next week" @click="weekOffset++"><Icon name="chevron_right" :size="16" /></Button>
         <Button size="sm" @click="openNew(activeDay)"><Icon name="plus" :size="16" /> Add class</Button>
       </div>
     </header>

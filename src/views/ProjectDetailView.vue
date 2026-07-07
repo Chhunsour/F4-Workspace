@@ -4,6 +4,9 @@ import { useRoute, RouterLink } from 'vue-router'
 import { useLoad } from '@/composables/useLoad'
 import { useProjectsStore } from '@/stores/projects'
 import { useSubjectsStore } from '@/stores/subjects'
+import { useAuthStore } from '@/stores/auth'
+import { useToast } from '@/composables/useToast'
+import { useConfirm } from '@/composables/useConfirm'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Icon from '@/components/ui/Icon.vue'
@@ -25,7 +28,26 @@ import type { ProjectTask } from '@/types'
 const route = useRoute()
 const store = useProjectsStore()
 const subjects = useSubjectsStore()
+const auth = useAuthStore()
 const now = useNow()
+const toast = useToast()
+const confirmDialog = useConfirm()
+
+const isOwner = computed(() => store.detail?.project.owner_id === auth.userId)
+
+function memberName(id: string | null): string | null {
+  if (!id) return null
+  return store.detail?.members.find(m => m.user_id === id)?.profile?.full_name ?? null
+}
+
+async function removeMember(uid: string) {
+  const ok = await confirmDialog.ask({ title: 'Remove member?', body: 'They lose access to this project.', destructive: true, confirmLabel: 'Remove' })
+  if (!ok) return
+  try {
+    await store.removeMember(projectId.value, uid)
+    toast.success('Member removed')
+  } catch (e: any) { toast.error('Could not remove member', e?.message) }
+}
 
 const editingProject = ref(false)
 const editingTask = ref<ProjectTask | null>(null)
@@ -80,7 +102,8 @@ function moveTask(t: ProjectTask, next: ProjectTask['status']) { store.updateTas
                 {{ subjects.byId(store.detail.project.subject_id)!.name }}
               </Badge>
               <Badge v-if="store.detail.project.deadline">
-                📅 {{ fmtDate(store.detail.project.deadline!) }} · {{ humanCountdown(new Date(store.detail.project.deadline!), now) }} left
+                <Icon name="clock" :size="12" />
+                {{ fmtDate(store.detail.project.deadline!) }} · {{ humanCountdown(new Date(store.detail.project.deadline!), now) }} left
               </Badge>
               <Badge class="capitalize">{{ store.detail.project.status.replace('_',' ') }}</Badge>
             </div>
@@ -115,6 +138,7 @@ function moveTask(t: ProjectTask, next: ProjectTask['status']) { store.updateTas
           </div>
           <div class="space-y-2 min-h-[3rem]">
             <TaskCard v-for="t in tasksIn(col.key)" :key="t.id" :task="t"
+                      :assignee-name="memberName(t.assignee_id)"
                       @edit="openEditTask" @move="(task, next) => moveTask(task, next)" />
             <button v-if="!tasksIn(col.key).length" class="w-full text-xs text-night-400 italic py-6 rounded-xl border-2 border-dashed border-surface-border dark:border-night-700 hover:border-brand-400"
                     @click="openNewTask(col.key)">+ add task</button>
@@ -131,9 +155,15 @@ function moveTask(t: ProjectTask, next: ProjectTask['status']) { store.updateTas
               <Avatar :name="m.profile?.full_name" size="sm" />
               <span class="flex-1 truncate">{{ m.profile?.full_name ?? m.user_id.slice(0,6) }}</span>
               <span class="chip capitalize">{{ m.role }}</span>
+              <button v-if="isOwner && m.user_id !== auth.userId"
+                      class="grid h-8 w-8 place-items-center rounded-lg text-night-400 hover:text-red-500 hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                      aria-label="Remove member" @click="removeMember(m.user_id)">
+                <Icon name="trash" :size="14" />
+              </button>
             </li>
           </ul>
-          <MemberInviter :project-id="store.detail.project.id" />
+          <!-- Only the owner's invites succeed under RLS — don't show a control that errors for everyone else -->
+          <MemberInviter v-if="isOwner" :project-id="store.detail.project.id" />
         </Card>
         <Card>
           <h4 class="font-semibold mb-3">Activity</h4>

@@ -14,7 +14,8 @@ export const useAssignmentsStore = defineStore('assignments', {
       return state.items.filter(a => {
         if (state.filter.subject && a.subject_id !== state.filter.subject) return false
         if (state.filter.priority && a.priority !== state.filter.priority) return false
-        if (state.filter.status && a.status !== state.filter.status) return false
+        // UI folds 'review' into Doing (in_progress)
+        if (state.filter.status && (a.status === 'review' ? 'in_progress' : a.status) !== state.filter.status) return false
         if (state.filter.q) {
           const q = state.filter.q.toLowerCase()
           if (!(a.title || '').toLowerCase().includes(q) &&

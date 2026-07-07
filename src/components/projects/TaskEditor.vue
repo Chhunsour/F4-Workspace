@@ -21,6 +21,7 @@ const confirm = useConfirm()
 
 const form = reactive({
   title: '', description: '', status: 'todo' as ProjectTask['status'], due_date: '',
+  assignee_id: null as string | null,
   checklist: [] as { id: string; text: string; done: boolean }[],
   newItem: '',
 })
@@ -29,13 +30,17 @@ watch(() => [props.open, props.editing, props.defaultStatus], () => {
     Object.assign(form, {
       title: props.editing.title, description: props.editing.description ?? '',
       status: props.editing.status, due_date: props.editing.due_date ?? '',
+      assignee_id: props.editing.assignee_id,
       checklist: JSON.parse(JSON.stringify(props.editing.checklist ?? [])),
       newItem: '',
     })
   } else {
-    Object.assign(form, { title: '', description: '', status: props.defaultStatus ?? 'todo', due_date: '', checklist: [], newItem: '' })
+    Object.assign(form, { title: '', description: '', status: props.defaultStatus ?? 'todo', due_date: '', assignee_id: null, checklist: [], newItem: '' })
   }
 }, { immediate: true })
+
+const memberOptions = computed(() =>
+  (store.detail?.members ?? []).map(m => ({ value: m.user_id, label: m.profile?.full_name ?? m.user_id.slice(0, 6) })))
 
 function addChecklistItem() {
   if (!form.newItem.trim()) return
@@ -51,6 +56,7 @@ async function save() {
   const payload = {
     title: form.title.trim(), description: form.description || null,
     status: form.status, due_date: form.due_date || null,
+    assignee_id: form.assignee_id,
     checklist: form.checklist,
   } as Partial<ProjectTask>
   try {
@@ -85,6 +91,7 @@ async function remove() {
           { value: 'review', label: 'Review' },{ value: 'completed', label: 'Completed' },
         ]" />
         <Input v-model="form.due_date" type="date" label="Due date" />
+        <Select v-model="form.assignee_id" label="Assignee" :options="memberOptions" placeholder="Unassigned" />
       </div>
       <div>
         <label class="block text-sm font-medium text-night-700 dark:text-night-100 mb-1.5">Checklist</label>

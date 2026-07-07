@@ -85,7 +85,7 @@ async function toggleFavorite() {
           <h2 class="text-2xl font-semibold">{{ memory.title || 'Untitled memory' }}</h2>
           <div class="mt-1 flex flex-wrap items-center gap-1.5 text-sm text-night-500">
             <span v-if="memory.event_date">{{ fmtDate(memory.event_date, { weekday:'long', month:'long', day:'numeric', year:'numeric' }) }}</span>
-            <Badge v-if="memory.album">📁 {{ memory.album }}</Badge>
+            <Badge v-if="memory.album"><Icon name="memories" :size="12" /> {{ memory.album }}</Badge>
             <Badge v-if="subjects.byId(memory.subject_id)" :dot="subjects.byId(memory.subject_id)!.color">{{ subjects.byId(memory.subject_id)!.name }}</Badge>
           </div>
         </div>
