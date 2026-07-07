@@ -40,6 +40,7 @@ Open http://localhost:5173.
 2. In the SQL editor, run:
    - `supabase/migrations/001_initial_schema.sql`
    - `supabase/migrations/002_seed_defaults.sql`
+   - `supabase/migrations/003_fixes_security_and_join.sql` — **required**: fixes join-by-code (RPC), scopes comment/reaction read access, hardens the seed RPC, adds `profiles.weekly_goal_minutes`
 3. The first migration also creates two public storage buckets: `avatars` and `memories`.
 4. In **Authentication → Providers** enable **Email**. Turn off "Confirm email" for a smoother demo if you want.
 5. In **Authentication → URL Configuration**, add your dev URL to **Site URL** and **Redirect URLs** (so password reset works).

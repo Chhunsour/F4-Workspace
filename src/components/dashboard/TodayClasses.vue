@@ -12,7 +12,7 @@ const schedule = useScheduleStore()
 const subjects = useSubjectsStore()
 const now = useNow()
 
-const today = computed(() => schedule.todaysClasses)
+const today = computed(() => schedule.byWeekday(now.value.getDay()))
 
 function subject(id: string | null) {
   return subjects.byId(id)

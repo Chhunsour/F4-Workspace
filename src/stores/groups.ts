@@ -37,16 +37,14 @@ export const useGroupsStore = defineStore('groups', {
       return group
     },
     async joinByCode(code: string) {
-      const { data: sess } = await supabase.auth.getSession()
-      const uid = sess.session?.user.id
-      if (!uid) throw new Error('Not signed in')
-      const { data: g, error: gErr } = await supabase.from('groups').select('*').eq('join_code', code.trim().toUpperCase()).maybeSingle()
-      if (gErr) throw gErr
-      if (!g) throw new Error('Group not found for that code.')
-      const { error } = await supabase.from('group_members').insert({ group_id: g.id, user_id: uid, role: 'member' })
-      if (error && !String(error.message).toLowerCase().includes('duplicate')) throw error
-      if (!this.items.find(x => x.id === g.id)) this.items.unshift(g as Group)
-      return g as Group
+      // RLS hides groups from non-members, so a direct select by code always
+      // came back empty. The SECURITY DEFINER RPC (migration 003) does the
+      // lookup + membership insert server-side.
+      const { data, error } = await supabase.rpc('join_group_by_code', { code: code.trim() })
+      if (error) throw new Error(error.message.includes('No group found') ? 'Group not found for that code.' : error.message)
+      const g = data as Group
+      if (!this.items.find(x => x.id === g.id)) this.items.unshift(g)
+      return g
     },
     async leave(groupId: string) {
       const { data: sess } = await supabase.auth.getSession()

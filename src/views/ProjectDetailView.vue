@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { onMounted, computed, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
+import { useLoad } from '@/composables/useLoad'
 import { useProjectsStore } from '@/stores/projects'
 import { useSubjectsStore } from '@/stores/subjects'
 import Card from '@/components/ui/Card.vue'
@@ -9,6 +10,7 @@ import Icon from '@/components/ui/Icon.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import Badge from '@/components/ui/Badge.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
+import LoadError from '@/components/ui/LoadError.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import ProjectEditor from '@/components/projects/ProjectEditor.vue'
 import TaskEditor from '@/components/projects/TaskEditor.vue'
@@ -32,10 +34,8 @@ const newTaskColumn = ref<ProjectTask['status'] | undefined>()
 
 const projectId = computed(() => String(route.params.id))
 
-onMounted(async () => {
-  await Promise.all([subjects.fetch(), store.loadDetail(projectId.value)])
-})
-watch(projectId, async (id) => { if (id) await store.loadDetail(id) })
+const { error, load } = useLoad(() => Promise.all([subjects.fetch(), store.loadDetail(projectId.value)]))
+watch(projectId, (id) => { if (id) load() })
 
 const columns = [
   { key: 'todo', label: STATUS_LABELS.todo.label },
@@ -60,7 +60,9 @@ function moveTask(t: ProjectTask, next: ProjectTask['status']) { store.updateTas
       <Icon name="chevron_left" :size="14" /> Projects
     </RouterLink>
 
-    <LoadingSpinner v-if="store.detailLoading" label="Loading project…" />
+    <LoadError v-if="error" :message="error" @retry="load" />
+
+    <LoadingSpinner v-else-if="store.detailLoading" label="Loading project…" />
 
     <template v-else-if="store.detail">
       <div class="flex items-start justify-between gap-3 flex-wrap">

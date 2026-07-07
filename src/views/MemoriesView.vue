@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { useLoad } from '@/composables/useLoad'
 import { useMemoriesStore } from '@/stores/memories'
 import { useGroupsStore } from '@/stores/groups'
 import { useSubjectsStore } from '@/stores/subjects'
@@ -8,6 +9,8 @@ import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Icon from '@/components/ui/Icon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
+import LoadError from '@/components/ui/LoadError.vue'
+import Skeleton from '@/components/ui/Skeleton.vue'
 import MemoryEditor from '@/components/memories/MemoryEditor.vue'
 import { fmtDate } from '@/lib/utils'
 
@@ -20,7 +23,7 @@ const view = ref<'gallery'|'timeline'|'album'>('gallery')
 const activeAlbum = ref<string>('')
 const editorOpen = ref(false)
 
-onMounted(async () => {
+const { error, loading, load } = useLoad(async () => {
   await Promise.all([mem.fetch(), subjects.fetch(), groups.fetch()])
   if (route.query.new === '1') openNew()
 })
@@ -75,7 +78,12 @@ const byMonth = computed(() => {
       </button>
     </div>
 
-    <EmptyState v-if="displayed.length === 0" icon="camera" title="No memories yet"
+    <LoadError v-if="error" :message="error" @retry="load" />
+    <div v-else-if="loading" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+      <Skeleton v-for="i in 4" :key="i" height="aspect-square h-auto" rounded="rounded-xl" />
+    </div>
+
+    <EmptyState v-else-if="displayed.length === 0" icon="camera" title="No memories yet"
                 body="Capture project nights, first-day chaos, and exam-week suffering.">
       <Button @click="openNew"><Icon name="plus" :size="16" /> New memory</Button>
     </EmptyState>

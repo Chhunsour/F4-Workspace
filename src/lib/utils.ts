@@ -8,9 +8,15 @@ export function classNames(...xs: (string | false | null | undefined)[]) {
 }
 
 // ---------- date/time ----------
+/** Local calendar date as YYYY-MM-DD. Never use toISOString() for this —
+ *  it converts to UTC and shifts the date for UTC+ timezones (we're UTC+7). */
+export function localIso(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
 export function todayIso(): string {
-  const d = new Date()
-  return d.toISOString().slice(0, 10)
+  return localIso(new Date())
 }
 
 export function fmtDate(d: string | Date | null | undefined, opts: Intl.DateTimeFormatOptions = { month:'short', day:'numeric', year:'numeric' }) {

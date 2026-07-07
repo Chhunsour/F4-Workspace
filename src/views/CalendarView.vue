@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
+import { useLoad } from '@/composables/useLoad'
 import { useScheduleStore } from '@/stores/schedule'
 import { useAssignmentsStore } from '@/stores/assignments'
 import { useProjectsStore } from '@/stores/projects'
@@ -7,7 +8,9 @@ import { useSubjectsStore } from '@/stores/subjects'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Icon from '@/components/ui/Icon.vue'
-import { fmtDate, WEEKDAY_LONG, startOfMonth, endOfMonth, startOfWeek } from '@/lib/utils'
+import LoadError from '@/components/ui/LoadError.vue'
+import Skeleton from '@/components/ui/Skeleton.vue'
+import { fmtDate, localIso, WEEKDAY_LONG, startOfMonth, startOfWeek } from '@/lib/utils'
 
 type View = 'month' | 'week' | 'agenda'
 
@@ -19,12 +22,13 @@ const subjects = useSubjectsStore()
 const view = ref<View>('month')
 const cursor = ref(new Date())
 
-onMounted(() => Promise.all([schedule.fetch(), assignments.fetch(), projects.fetch(), subjects.fetch()]))
+const { error, loading, load } = useLoad(() =>
+  Promise.all([schedule.fetch(), assignments.fetch(), projects.fetch(), subjects.fetch()]))
 
 interface Ev { date: Date; label: string; color: string; kind: 'class'|'assignment'|'project'; sub?: string }
 
 function eventsForDate(d: Date): Ev[] {
-  const iso = d.toISOString().slice(0,10)
+  const iso = localIso(d)
   const out: Ev[] = []
   // classes on this weekday
   for (const c of schedule.byWeekday(d.getDay())) {
@@ -108,8 +112,11 @@ function jumpToday() { cursor.value = new Date() }
       </div>
     </div>
 
+    <LoadError v-if="error" :message="error" @retry="load" />
+    <Skeleton v-else-if="loading" height="h-96" rounded="rounded-xl" />
+
     <!-- month -->
-    <Card v-if="view === 'month'" padded class="!p-3">
+    <Card v-else-if="view === 'month'" padded class="!p-3">
       <div class="grid grid-cols-7 gap-1 text-[11px] text-night-500 uppercase tracking-wide mb-1">
         <div v-for="d in WEEKDAY_LONG" :key="d" class="text-center py-1">{{ d.slice(0,3) }}</div>
       </div>

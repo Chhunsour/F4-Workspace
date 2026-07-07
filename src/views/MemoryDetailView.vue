@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
+import { useLoad } from '@/composables/useLoad'
 import { useMemoriesStore } from '@/stores/memories'
 import { useSubjectsStore } from '@/stores/subjects'
 import { useAuthStore } from '@/stores/auth'
@@ -11,6 +12,7 @@ import Badge from '@/components/ui/Badge.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
+import LoadError from '@/components/ui/LoadError.vue'
 import MemoryEditor from '@/components/memories/MemoryEditor.vue'
 import CommentThread from '@/components/shared/CommentThread.vue'
 import { fmtDate } from '@/lib/utils'
@@ -37,16 +39,14 @@ async function loadReactions() {
   reactions.value = (data ?? []) as Reaction[]
 }
 
-onMounted(async () => {
-  await Promise.all([mem.fetch(), subjects.fetch()])
-  await Promise.all([mem.loadImages(memoryId.value), loadReactions()])
-  loading.value = false
-})
-watch(memoryId, async (id) => {
+const { error, load } = useLoad(async () => {
   loading.value = true
-  await Promise.all([mem.loadImages(id), loadReactions()])
-  loading.value = false
+  try {
+    await Promise.all([mem.fetch(), subjects.fetch()])
+    await Promise.all([mem.loadImages(memoryId.value), loadReactions()])
+  } finally { loading.value = false }
 })
+watch(memoryId, () => load())
 
 const counts = computed(() => {
   const c: Record<string, number> = {}
@@ -75,7 +75,9 @@ async function toggleFavorite() {
       <Icon name="chevron_left" :size="14" /> Memories
     </RouterLink>
 
-    <LoadingSpinner v-if="loading" label="Loading memory…" />
+    <LoadError v-if="error" :message="error" @retry="load" />
+
+    <LoadingSpinner v-else-if="loading" label="Loading memory…" />
 
     <template v-else-if="memory">
       <div class="flex items-start justify-between flex-wrap gap-3">

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useLoad } from '@/composables/useLoad'
 import { useGroupsStore } from '@/stores/groups'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
@@ -9,6 +10,8 @@ import Modal from '@/components/ui/Modal.vue'
 import Input from '@/components/ui/Input.vue'
 import Textarea from '@/components/ui/Textarea.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
+import LoadError from '@/components/ui/LoadError.vue'
+import Skeleton from '@/components/ui/Skeleton.vue'
 import { useToast } from '@/composables/useToast'
 
 const store = useGroupsStore()
@@ -21,7 +24,7 @@ const cDesc = ref('')
 const joinCode = ref('')
 const busy = ref(false)
 
-onMounted(() => store.fetch())
+const { error, loading, load } = useLoad(() => store.fetch())
 
 async function submitCreate() {
   if (!cName.value.trim()) return
@@ -59,7 +62,12 @@ async function submitJoin() {
       </div>
     </div>
 
-    <EmptyState v-if="store.items.length === 0" icon="groups" title="No groups yet"
+    <LoadError v-if="error" :message="error" @retry="load" />
+    <div v-else-if="loading" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <Skeleton v-for="i in 3" :key="i" height="h-28" rounded="rounded-xl" />
+    </div>
+
+    <EmptyState v-else-if="store.items.length === 0" icon="groups" title="No groups yet"
                 body="Create one and share the code with your friends.">
       <div class="flex gap-2 mt-2">
         <Button variant="secondary" @click="joinOpen = true">Join</Button>

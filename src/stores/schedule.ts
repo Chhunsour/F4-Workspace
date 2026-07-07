@@ -19,24 +19,17 @@ export const useScheduleStore = defineStore('schedule', {
         .filter(x => x.weekday === weekday)
         .sort((a,b) => timeToMinutes(a.start_time) - timeToMinutes(b.start_time)),
 
-    todaysClasses(): ClassSchedule[] {
-      return this.byWeekday(new Date().getDay())
-    },
-
-    nextClass(): ClassSchedule | null {
-      const now = new Date()
-      const nowMin = now.getHours() * 60 + now.getMinutes()
-      // today upcoming
-      const today = this.byWeekday(now.getDay())
-      const upcomingToday = today.find(c => timeToMinutes(c.end_time) > nowMin)
-      if (upcomingToday) return upcomingToday
-      // else next day with class
-      for (let d = 1; d <= 7; d++) {
-        const wd = (now.getDay() + d) % 7
-        const next = this.byWeekday(wd)
-        if (next.length) return next[0]
+    /** Time-aware: pass a ticking `now` so the result advances as classes
+     *  start/end. (A plain getter caches on store state and goes stale.) */
+    nextClassAt(): (now: Date) => ClassSchedule | null {
+      return (now) => {
+        const nowMin = now.getHours() * 60 + now.getMinutes()
+        let c = this.byWeekday(now.getDay()).find(x => timeToMinutes(x.end_time) > nowMin) ?? null
+        for (let d = 1; d <= 7 && !c; d++) {
+          c = this.byWeekday((now.getDay() + d) % 7)[0] ?? null
+        }
+        return c
       }
-      return null
     },
   },
   actions: {

@@ -19,7 +19,7 @@ const REACTIONS = [
 ]
 
 const pick = computed(() => {
-  const today = schedule.todaysClasses
+  const today = schedule.byWeekday(new Date().getDay())
   const sub = today.length ? subjects.byId(today[0].subject_id) : subjects.items[0]
   if (!sub) return null
   const seed = new Date().getDate() + (sub.id?.length ?? 0)

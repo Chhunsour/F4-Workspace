@@ -19,6 +19,7 @@ export interface Profile {
   year: number | null
   bio: string | null
   avatar_url: string | null
+  weekly_goal_minutes: number
   created_at: Iso
   updated_at: Iso
 }
@@ -237,7 +238,8 @@ export interface Database {
     }
     Views:     Record<string, never>
     Functions: {
-      seed_defaults_for: { Args: { uid: UUID }; Returns: undefined }
+      seed_defaults_for:  { Args: { uid: UUID };   Returns: undefined }
+      join_group_by_code: { Args: { code: string }; Returns: Group }
     }
     Enums:     Record<string, never>
     CompositeTypes: Record<string, never>

@@ -6,7 +6,10 @@ import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Icon from '@/components/ui/Icon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
+import LoadError from '@/components/ui/LoadError.vue'
+import Skeleton from '@/components/ui/Skeleton.vue'
 import ClassEditor from '@/components/schedule/ClassEditor.vue'
+import { useLoad } from '@/composables/useLoad'
 import ClassCard from '@/components/schedule/ClassCard.vue'
 import { fmtDate, fmtTime, humanCountdown, WEEKDAY_LABELS, WEEKDAY_LONG } from '@/lib/utils'
 import type { ClassSchedule } from '@/types'
@@ -22,11 +25,12 @@ const dayForNew = ref<number | undefined>(undefined)
 const now = ref(new Date())
 let timer: number | undefined
 
-onMounted(async () => {
+onMounted(() => {
   timer = window.setInterval(() => { now.value = new Date() }, 30_000)
-  await Promise.all([schedule.fetch(), subjects.fetch()])
 })
 onBeforeUnmount(() => window.clearInterval(timer))
+
+const { error, loading, load } = useLoad(() => Promise.all([schedule.fetch(), subjects.fetch()]))
 
 // ---- week (Mon → Sun, with real dates for the current week) ----
 const todayNum = computed(() => now.value.getDay())
@@ -88,13 +92,9 @@ const nowInRange = computed(() => nowMin.value >= range.value.start && nowMin.va
 const isLive = (c: ClassSchedule) =>
   c.weekday === todayNum.value && nowMin.value >= toMin(c.start_time) && nowMin.value < toMin(c.end_time)
 
-// ---- next class (time-aware, unlike the cached store getter) ----
+// ---- next class ----
 const next = computed(() => {
-  let c: ClassSchedule | null =
-    schedule.byWeekday(todayNum.value).find(x => toMin(x.end_time) > nowMin.value) ?? null
-  for (let d = 1; d <= 7 && !c; d++) {
-    c = schedule.byWeekday((todayNum.value + d) % 7)[0] ?? null
-  }
+  const c = schedule.nextClassAt(now.value)
   if (!c) return null
   const { start } = classDateForToday(c, now.value)
   return { c, subject: subjects.byId(c.subject_id), start }
@@ -133,6 +133,13 @@ function openEdit(c: ClassSchedule) {
         <Button size="sm" @click="openNew(activeDay)"><Icon name="plus" :size="16" /> Add class</Button>
       </div>
     </header>
+
+    <LoadError v-if="error" :message="error" @retry="load" />
+    <div v-else-if="loading" class="space-y-3">
+      <Skeleton height="h-14" rounded="rounded-xl" />
+      <Skeleton height="h-96" rounded="rounded-xl" />
+    </div>
+    <template v-else>
 
     <!-- Next class strip -->
     <div v-if="next"
@@ -256,6 +263,8 @@ function openEdit(c: ClassSchedule) {
         </div>
       </div>
     </div>
+
+    </template>
 
     <ClassEditor v-model:open="editorOpen" :editing="editing" :default-weekday="dayForNew" />
   </div>

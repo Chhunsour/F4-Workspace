@@ -11,6 +11,7 @@ import { useSubjectsStore } from '@/stores/subjects'
 import { useGroupsStore } from '@/stores/groups'
 import { useToast } from '@/composables/useToast'
 import { useConfirm } from '@/composables/useConfirm'
+import { todayIso } from '@/lib/utils'
 import type { Memory } from '@/types'
 
 const props = defineProps<{ open: boolean; editing?: Memory | null }>()
@@ -38,7 +39,7 @@ watch(() => [props.open, props.editing], () => {
       subject_id: props.editing.subject_id, group_id: props.editing.group_id,
     })
   } else {
-    Object.assign(form, { title: '', caption: '', event_date: new Date().toISOString().slice(0,10), album: '', subject_id: null, group_id: null })
+    Object.assign(form, { title: '', caption: '', event_date: todayIso(), album: '', subject_id: null, group_id: null })
     files.value = []
   }
 }, { immediate: true })

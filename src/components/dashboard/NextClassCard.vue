@@ -10,7 +10,7 @@ const schedule = useScheduleStore()
 const subjects = useSubjectsStore()
 const now = useNow()
 
-const next = computed(() => schedule.nextClass)
+const next = computed(() => schedule.nextClassAt(now.value))
 
 const info = computed(() => {
   const n = next.value; if (!n) return null

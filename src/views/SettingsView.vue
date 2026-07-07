@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useToast } from '@/composables/useToast'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
 import { useStudyStore } from '@/stores/study'
@@ -13,6 +15,20 @@ const auth = useAuthStore()
 const study = useStudyStore()
 const confirm = useConfirm()
 const router = useRouter()
+const toast = useToast()
+
+const goal = ref(study.weeklyGoalMinutes)
+watch(() => study.weeklyGoalMinutes, v => { goal.value = v })
+const savingGoal = ref(false)
+async function saveGoal() {
+  const v = Math.max(30, Number(goal.value) || 600)
+  savingGoal.value = true
+  try {
+    await auth.updateProfile({ weekly_goal_minutes: v })
+    toast.success('Weekly goal saved')
+  } catch (e: any) { toast.error('Could not save goal', e?.message) }
+  finally { savingGoal.value = false }
+}
 
 const themes = [
   { value: 'light', label: 'Light', hint: 'Bright, high contrast' },
@@ -50,8 +66,11 @@ async function doSignOut() {
 
     <Card>
       <h3 class="font-semibold mb-3">Study goals</h3>
-      <div class="grid sm:grid-cols-2 gap-3">
-        <Input v-model="study.weeklyGoalMinutes as any" type="number" min="30" step="30" label="Weekly goal (minutes)" hint="Default: 600 min = 10 hours" />
+      <div class="flex flex-wrap items-end gap-3">
+        <div class="w-full sm:w-64">
+          <Input v-model="goal as any" type="number" min="30" step="30" label="Weekly goal (minutes)" hint="Default: 600 min = 10 hours" />
+        </div>
+        <Button :loading="savingGoal" @click="saveGoal">Save</Button>
       </div>
     </Card>
 

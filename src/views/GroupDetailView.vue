@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, watch, ref } from 'vue'
+import { computed, watch, ref } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
+import { useLoad } from '@/composables/useLoad'
 import { useGroupsStore } from '@/stores/groups'
 import { useProjectsStore } from '@/stores/projects'
 import { useMemoriesStore } from '@/stores/memories'
@@ -9,6 +10,7 @@ import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
+import LoadError from '@/components/ui/LoadError.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import Icon from '@/components/ui/Icon.vue'
 import { useToast } from '@/composables/useToast'
@@ -24,10 +26,9 @@ const toast = useToast(); const confirm = useConfirm()
 const groupId = computed(() => String(route.params.id))
 const codeCopied = ref(false)
 
-onMounted(async () => {
-  await Promise.all([groups.loadDetail(groupId.value), projects.fetch(), mem.fetch()])
-})
-watch(groupId, id => { if (id) groups.loadDetail(id) })
+const { error, load } = useLoad(() =>
+  Promise.all([groups.loadDetail(groupId.value), projects.fetch(), mem.fetch()]))
+watch(groupId, id => { if (id) load() })
 
 const sharedProjects = computed(() => projects.items.filter(p => p.group_id === groupId.value))
 const sharedMemories = computed(() => mem.items.filter(m => m.group_id === groupId.value))
@@ -60,7 +61,8 @@ async function deleteGroup() {
 <template>
   <div class="max-w-5xl mx-auto space-y-4">
     <RouterLink to="/groups" class="text-xs text-night-500 hover:text-brand-600 inline-flex items-center gap-1"><Icon name="chevron_left" :size="14" /> Groups</RouterLink>
-    <LoadingSpinner v-if="groups.detailLoading" label="Loading group…" />
+    <LoadError v-if="error" :message="error" @retry="load" />
+    <LoadingSpinner v-else-if="groups.detailLoading" label="Loading group…" />
     <template v-else-if="groups.detail">
       <div class="flex items-start justify-between flex-wrap gap-3">
         <div class="flex items-start gap-3">

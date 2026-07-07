@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref, watch, computed } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { useLoad } from '@/composables/useLoad'
 import { useProjectsStore } from '@/stores/projects'
 import { useSubjectsStore } from '@/stores/subjects'
 import { useGroupsStore } from '@/stores/groups'
@@ -8,6 +9,8 @@ import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Icon from '@/components/ui/Icon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
+import LoadError from '@/components/ui/LoadError.vue'
+import Skeleton from '@/components/ui/Skeleton.vue'
 import ProjectEditor from '@/components/projects/ProjectEditor.vue'
 import { fmtDate } from '@/lib/utils'
 
@@ -20,7 +23,7 @@ const router = useRouter()
 const editorOpen = ref(false)
 const editing = ref(null as any)
 
-onMounted(async () => {
+const { error, loading, load } = useLoad(async () => {
   await Promise.all([projects.fetch(), subjects.fetch(), groups.fetch()])
   if (route.query.new === '1') openNew()
 })
@@ -42,7 +45,12 @@ function openNew() {
       <Button @click="openNew"><Icon name="plus" :size="16" /> New project</Button>
     </div>
 
-    <EmptyState v-if="projects.items.length === 0" icon="projects" title="No projects yet"
+    <LoadError v-if="error" :message="error" @retry="load" />
+    <div v-else-if="loading" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <Skeleton v-for="i in 3" :key="i" height="h-40" rounded="rounded-xl" />
+    </div>
+
+    <EmptyState v-else-if="projects.items.length === 0" icon="projects" title="No projects yet"
                 body="Start a solo or group project. Track tasks, deadlines, and progress.">
       <Button @click="openNew"><Icon name="plus" :size="16" /> New project</Button>
     </EmptyState>

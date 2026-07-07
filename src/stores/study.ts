@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import { supabase } from '@/lib/supabase'
+import { localIso } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth'
 import type { StudySession } from '@/types'
 
 interface ActiveTimer {
@@ -20,9 +22,12 @@ export const useStudyStore = defineStore('study', {
     loaded: false,
     loading: false,
     active: null as ActiveTimer | null,
-    weeklyGoalMinutes: 600, // 10h/week default
   }),
   getters: {
+    /** Persisted on the profile (migration 003); 600 = 10h/week default. */
+    weeklyGoalMinutes(): number {
+      return useAuthStore().profile?.weekly_goal_minutes ?? 600
+    },
     totalToday(state) {
       const today = new Date(); today.setHours(0,0,0,0)
       return state.items.filter(s => new Date(s.started_at) >= today)
@@ -34,10 +39,11 @@ export const useStudyStore = defineStore('study', {
         .reduce((sum, s) => sum + s.duration_seconds, 0)
     },
     streakDays(state): number {
-      const days = new Set(state.items.map(s => new Date(s.started_at).toISOString().slice(0,10)))
+      // Local calendar days — toISOString() would shift dates in UTC+7.
+      const days = new Set(state.items.map(s => localIso(new Date(s.started_at))))
       let count = 0
       const d = new Date(); d.setHours(0,0,0,0)
-      while (days.has(d.toISOString().slice(0,10))) {
+      while (days.has(localIso(d))) {
         count++
         d.setDate(d.getDate() - 1)
       }

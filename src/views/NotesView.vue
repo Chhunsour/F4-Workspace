@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useLoad } from '@/composables/useLoad'
 import { useNotesStore } from '@/stores/notes'
 import { debounce, fmtDate } from '@/lib/utils'
 import { NOTE_COLORS } from '@/types'
@@ -8,6 +9,8 @@ import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Icon from '@/components/ui/Icon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
+import LoadError from '@/components/ui/LoadError.vue'
+import Skeleton from '@/components/ui/Skeleton.vue'
 import Input from '@/components/ui/Input.vue'
 import Textarea from '@/components/ui/Textarea.vue'
 import { useToast } from '@/composables/useToast'
@@ -23,7 +26,7 @@ const draft = ref<{ title: string; body: string; color: string; tags: string[]; 
   title: '', body: '', color: '#ffffff', tags: [], is_pinned: false, newTag: '',
 })
 
-onMounted(async () => {
+const { error, loading, load } = useLoad(async () => {
   await store.fetch()
   const wanted = route.query.id as string | undefined
   if (wanted) open(store.items.find(n => n.id === wanted) ?? null)
@@ -84,7 +87,12 @@ async function remove() {
       <Button @click="createBlank"><Icon name="plus" :size="16" /> New note</Button>
     </div>
 
-    <div class="grid gap-4 lg:grid-cols-[320px_1fr]">
+    <LoadError v-if="error" :message="error" @retry="load" />
+    <div v-else-if="loading" class="grid gap-4 lg:grid-cols-[320px_1fr]">
+      <Skeleton height="h-64" rounded="rounded-xl" />
+      <Skeleton height="h-64" rounded="rounded-xl" />
+    </div>
+    <div v-else class="grid gap-4 lg:grid-cols-[320px_1fr]">
       <!-- list -->
       <div>
         <Card padded class="!p-3">

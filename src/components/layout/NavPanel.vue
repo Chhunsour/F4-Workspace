@@ -31,7 +31,7 @@ const isActive = (to: string) => (to === '/' ? route.path === '/' : route.path.s
 
 const openAssignments = computed(() => assignments.items.filter(a => a.status !== 'completed').length)
 const activeProjects   = computed(() => projects.items.filter(p => p.status === 'active').length)
-const todayClasses     = computed(() => schedule.todaysClasses.length)
+const todayClasses     = computed(() => schedule.byWeekday(new Date().getDay()).length)
 const dueSoon          = computed(() => assignments.upcoming.length)
 
 const workspace = computed(() => [

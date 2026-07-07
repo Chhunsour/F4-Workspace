@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useLoad } from '@/composables/useLoad'
 import { useAssignmentsStore } from '@/stores/assignments'
 import { useSubjectsStore } from '@/stores/subjects'
 import Card from '@/components/ui/Card.vue'
@@ -9,6 +10,8 @@ import Icon from '@/components/ui/Icon.vue'
 import Input from '@/components/ui/Input.vue'
 import Select from '@/components/ui/Select.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
+import LoadError from '@/components/ui/LoadError.vue'
+import Skeleton from '@/components/ui/Skeleton.vue'
 import AssignmentRow from '@/components/assignments/AssignmentRow.vue'
 import AssignmentEditor from '@/components/assignments/AssignmentEditor.vue'
 import type { Assignment } from '@/types'
@@ -22,7 +25,7 @@ const router = useRouter()
 const editorOpen = ref(false)
 const editing = ref<Assignment | null>(null)
 
-onMounted(async () => {
+const { error, loading, load } = useLoad(async () => {
   await Promise.all([store.fetch(), subjects.fetch()])
   if (route.query.new === '1') openNew()
 })
@@ -55,6 +58,12 @@ const subjectOptions = computed(() => [{ value: '', label: 'All subjects' }, ...
       </div>
       <Button @click="openNew"><Icon name="plus" :size="16" /> New assignment</Button>
     </div>
+
+    <LoadError v-if="error" :message="error" @retry="load" />
+    <div v-else-if="loading" class="space-y-2">
+      <Skeleton v-for="i in 4" :key="i" height="h-20" rounded="rounded-xl" />
+    </div>
+    <template v-else>
 
     <Card padded class="!p-3">
       <div class="grid gap-2 md:grid-cols-4">
@@ -92,6 +101,8 @@ const subjectOptions = computed(() => [{ value: '', label: 'All subjects' }, ...
         <div v-else class="text-xs text-night-400 italic px-4 py-2">nothing here</div>
       </section>
     </div>
+
+    </template>
 
     <AssignmentEditor v-model:open="editorOpen" :editing="editing" />
   </div>
