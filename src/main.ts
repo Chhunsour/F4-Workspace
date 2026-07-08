@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import { useThemeStore } from '@/stores/theme'
+import { useLanguageStore } from '@/stores/language'
 import { useAuthStore } from '@/stores/auth'
 import './style.css'
 
@@ -12,6 +13,9 @@ app.use(createPinia())
 // Theme + session bootstrap before router mounts to avoid guard flash.
 const theme = useThemeStore()
 theme.init()
+
+const language = useLanguageStore()
+language.init()
 
 const auth = useAuthStore()
 auth.init().finally(() => {

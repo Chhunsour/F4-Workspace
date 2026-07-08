@@ -22,7 +22,6 @@ import MemberInviter from '@/components/projects/MemberInviter.vue'
 import CommentThread from '@/components/shared/CommentThread.vue'
 import { fmtDate, humanCountdown } from '@/lib/utils'
 import { useNow } from '@/composables/useCountdown'
-import { STATUS_LABELS } from '@/types'
 import type { ProjectTask } from '@/types'
 
 const route = useRoute()
@@ -59,15 +58,31 @@ const projectId = computed(() => String(route.params.id))
 const { error, load } = useLoad(() => Promise.all([subjects.fetch(), store.loadDetail(projectId.value)]))
 watch(projectId, (id) => { if (id) load() })
 
+// Simple board: To Do / Doing / Done. Old 'review' tasks show under Doing.
 const columns = [
-  { key: 'todo', label: STATUS_LABELS.todo.label },
-  { key: 'in_progress', label: STATUS_LABELS.in_progress.label },
-  { key: 'review', label: STATUS_LABELS.review.label },
-  { key: 'completed', label: STATUS_LABELS.completed.label },
+  { key: 'todo', label: 'To Do' },
+  { key: 'in_progress', label: 'Doing' },
+  { key: 'completed', label: 'Done' },
 ] as const
 
+// Who's doing what, right now — from live task state.
+const todayLines = computed(() => {
+  const out: { text: string; task: ProjectTask }[] = []
+  const todayIso = new Date().toLocaleDateString('sv')
+  for (const t of store.detail?.tasks ?? []) {
+    const who = memberName(t.assignee_id)
+    if (t.status === 'in_progress' || t.status === 'review')
+      out.push({ text: `${who ?? 'Someone'} is working on ${t.title}`, task: t })
+    else if (t.status === 'completed' && t.updated_at.slice(0, 10) === todayIso)
+      out.push({ text: `${who ?? 'Someone'} finished ${t.title}`, task: t })
+  }
+  return out.slice(0, 5)
+})
+
 function tasksIn(col: string) {
-  return store.detail?.tasks.filter(t => t.status === col).sort((a,b) => a.position - b.position) ?? []
+  return store.detail?.tasks
+    .filter(t => (t.status === 'review' ? 'in_progress' : t.status) === col)
+    .sort((a,b) => a.position - b.position) ?? []
 }
 function openNewTask(col: ProjectTask['status']) {
   editingTask.value = null; newTaskColumn.value = col; taskEditorOpen.value = true
@@ -103,28 +118,43 @@ function moveTask(t: ProjectTask, next: ProjectTask['status']) { store.updateTas
               </Badge>
               <Badge v-if="store.detail.project.deadline">
                 <Icon name="clock" :size="12" />
-                {{ fmtDate(store.detail.project.deadline!) }} · {{ humanCountdown(new Date(store.detail.project.deadline!), now) }} left
+                Due {{ fmtDate(store.detail.project.deadline!) }} · {{ humanCountdown(new Date(store.detail.project.deadline!), now) }} left
               </Badge>
-              <Badge class="capitalize">{{ store.detail.project.status.replace('_',' ') }}</Badge>
+              <Badge>{{ store.detail.members.length }} member{{ store.detail.members.length === 1 ? '' : 's' }}</Badge>
             </div>
           </div>
         </div>
         <Button variant="secondary" @click="editingProject = true"><Icon name="edit" :size="16" /> Edit</Button>
       </div>
 
-      <!-- progress -->
-      <Card padded>
-        <div class="flex items-center justify-between text-sm mb-1.5">
-          <span class="font-medium">Overall progress</span>
-          <span>{{ store.detail.project.progress }}%</span>
+      <!-- progress: one quiet line, not a card -->
+      <div>
+        <div class="mb-1.5 flex items-center justify-between text-xs text-night-500 dark:text-night-300">
+          <span>Project progress</span><span class="tabular-nums">{{ store.detail.project.progress }}%</span>
         </div>
-        <div class="h-2 bg-night-100 dark:bg-night-700 rounded-full overflow-hidden">
+        <div class="h-1.5 overflow-hidden rounded-full bg-night-100 dark:bg-night-700">
           <div class="h-full transition-all" :style="{ width: store.detail.project.progress + '%', background: store.detail.project.color ?? '#3a68ff' }" />
         </div>
-      </Card>
+      </div>
+
+      <!-- today: who's doing what -->
+      <section v-if="todayLines.length">
+        <h4 class="t-section mb-2">Today</h4>
+        <ul class="space-y-1">
+          <li v-for="(l, i) in todayLines" :key="i">
+            <button type="button"
+                    class="-mx-2 flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                    @click="openEditTask(l.task)">
+              <span class="h-1.5 w-1.5 shrink-0 rounded-full"
+                    :class="l.task.status === 'completed' ? 'bg-emerald-500' : 'bg-brand-500'" />
+              <span class="min-w-0 flex-1 truncate text-night-700 dark:text-night-100">{{ l.text }}</span>
+            </button>
+          </li>
+        </ul>
+      </section>
 
       <!-- board -->
-      <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+      <div class="grid gap-3 md:grid-cols-3">
         <div v-for="col in columns" :key="col.key"
              class="rounded-2xl bg-white dark:bg-night-800 border border-surface-border dark:border-night-700 p-3">
           <div class="flex items-center justify-between mb-3">

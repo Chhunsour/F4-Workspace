@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import Button from '@/components/ui/Button.vue'
+import { useI18n } from '@/composables/useI18n'
 
 interface Props { message?: string }
 defineProps<Props>()
 defineEmits<{ (e: 'retry'): void }>()
+const { t } = useI18n()
 </script>
 
 <template>
@@ -14,12 +16,12 @@ defineEmits<{ (e: 'retry'): void }>()
               stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
       </svg>
     </div>
-    <h4 class="t-card">Couldn't load this</h4>
+    <h4 class="t-card">{{ t("Couldn't load this") }}</h4>
     <p class="mt-1 text-sm text-night-500 dark:text-night-300 max-w-sm mx-auto">
-      {{ message || 'Check your connection and try again.' }}
+      {{ message || t('Check your connection and try again.') }}
     </p>
     <div class="mt-4 flex justify-center">
-      <Button variant="secondary" size="sm" @click="$emit('retry')">Try again</Button>
+      <Button variant="secondary" size="sm" @click="$emit('retry')">{{ t('Try again') }}</Button>
     </div>
   </div>
 </template>

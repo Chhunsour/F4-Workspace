@@ -2,6 +2,9 @@
 import { RouterLink } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import { ref } from 'vue'
+import { useI18n } from '@/composables/useI18n'
+
+const { t } = useI18n()
 
 const primary = [
   { to: '/',            label: 'Home',     icon: 'dashboard' },
@@ -13,7 +16,7 @@ const secondary = [
   { to: '/projects', label: 'Projects', icon: 'projects' },
   { to: '/calendar', label: 'Calendar', icon: 'calendar' },
   { to: '/notes',    label: 'Notes',    icon: 'notes' },
-  { to: '/memories', label: 'Memories', icon: 'memories' },
+  { to: '/memory',   label: 'Memory',   icon: 'memories' },
   { to: '/groups',   label: 'Groups',   icon: 'groups' },
   { to: '/profile',  label: 'Profile',  icon: 'profile' },
   { to: '/settings', label: 'Settings', icon: 'settings' },
@@ -35,7 +38,7 @@ const showMore = ref(false)
                :class="['flex flex-col items-center justify-center gap-1 rounded-xl py-3 text-[11px] transition-colors',
                         isActive ? 'nav-item-active !py-3' : 'text-night-600 dark:text-night-200 active:bg-white/40 dark:active:bg-white/5']">
               <Icon :name="s.icon" :size="22" />
-              <span>{{ s.label }}</span>
+              <span>{{ t(s.label) }}</span>
             </a>
           </RouterLink>
         </div>
@@ -53,18 +56,18 @@ const showMore = ref(false)
                     :class="(p.to === '/' ? isExactActive : isActive) ? 'bg-brand-500/15' : ''">
                 <Icon :name="p.icon" :size="21" />
               </span>
-              <span>{{ p.label }}</span>
+              <span>{{ t(p.label) }}</span>
             </a>
           </RouterLink>
         </li>
         <li class="contents">
           <button class="flex flex-col items-center justify-center gap-1 text-[11px] transition-colors"
                   :class="showMore ? 'text-brand-600 dark:text-brand-300 font-medium' : 'text-night-500 dark:text-night-400'"
-                  @click="showMore = !showMore" aria-label="More">
+                  @click="showMore = !showMore" :aria-label="t('More')">
             <span class="flex items-center justify-center h-7 w-12 rounded-full transition-colors" :class="showMore ? 'bg-brand-500/15' : ''">
               <Icon name="more" :size="21" />
             </span>
-            <span>More</span>
+            <span>{{ t('More') }}</span>
           </button>
         </li>
       </ul>

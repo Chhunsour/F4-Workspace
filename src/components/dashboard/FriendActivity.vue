@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
-import Card from '@/components/ui/Card.vue'
 import Icon from '@/components/ui/Icon.vue'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth'
@@ -72,8 +71,8 @@ const items = computed<Item[]>(() => {
 </script>
 
 <template>
-  <Card v-if="items.length">
-    <h3 class="t-card mb-3">Friend life</h3>
+  <section v-if="items.length">
+    <h3 class="t-section mb-3">Friend life</h3>
     <ul class="space-y-1">
       <li v-for="(it, i) in items" :key="i">
         <RouterLink :to="it.to"
@@ -86,5 +85,5 @@ const items = computed<Item[]>(() => {
         </RouterLink>
       </li>
     </ul>
-  </Card>
+  </section>
 </template>

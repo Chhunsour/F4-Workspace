@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { watch, onBeforeUnmount } from 'vue'
+import { useI18n } from '@/composables/useI18n'
 
 interface Props { open: boolean; title?: string; wide?: boolean }
 const props = defineProps<Props>()
 const emit = defineEmits<{ (e: 'update:open', v: boolean): void }>()
+const { t } = useI18n()
 
 function close() { emit('update:open', false) }
 function onKey(e: KeyboardEvent) { if (e.key === 'Escape') close() }
@@ -38,7 +40,7 @@ onBeforeUnmount(() => {
             <slot name="header">
               <h3 class="t-card !text-lg">{{ props.title }}</h3>
             </slot>
-            <button class="text-night-500 hover:text-night-900 dark:hover:text-white transition-colors p-1 rounded-lg" @click="close" aria-label="Close">
+            <button class="text-night-500 hover:text-night-900 dark:hover:text-white transition-colors p-1 rounded-lg" @click="close" :aria-label="t('Close')">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
             </button>
           </header>

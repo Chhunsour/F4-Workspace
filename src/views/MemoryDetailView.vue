@@ -5,7 +5,6 @@ import { useLoad } from '@/composables/useLoad'
 import { useMemoriesStore } from '@/stores/memories'
 import { useSubjectsStore } from '@/stores/subjects'
 import { useAuthStore } from '@/stores/auth'
-import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Icon from '@/components/ui/Icon.vue'
 import Badge from '@/components/ui/Badge.vue'
@@ -15,7 +14,7 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 import LoadError from '@/components/ui/LoadError.vue'
 import MemoryEditor from '@/components/memories/MemoryEditor.vue'
 import CommentThread from '@/components/shared/CommentThread.vue'
-import { fmtDate } from '@/lib/utils'
+import { fmtDate, timeAgo } from '@/lib/utils'
 import { supabase, publicUrl } from '@/lib/supabase'
 import { REACTION_EMOJIS } from '@/types'
 import type { Memory, Reaction } from '@/types'
@@ -47,6 +46,14 @@ const { error, load } = useLoad(async () => {
   } finally { loading.value = false }
 })
 watch(memoryId, () => load())
+
+const ago = computed(() => {
+  if (!memory.value) return ''
+  const d = memory.value.event_date ? new Date(memory.value.event_date + 'T00:00:00') : new Date(memory.value.created_at)
+  return timeAgo(d)
+})
+const friendsReacted = computed(() =>
+  new Set(reactions.value.filter(r => r.owner_id !== auth.userId).map(r => r.owner_id)).size)
 
 const counts = computed(() => {
   const c: Record<string, number> = {}
@@ -92,7 +99,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="max-w-4xl mx-auto space-y-4">
-    <RouterLink to="/memories" class="text-xs text-night-500 hover:text-brand-600 inline-flex items-center gap-1">
+    <RouterLink to="/memory" class="text-xs text-night-500 hover:text-brand-600 inline-flex items-center gap-1">
       <Icon name="chevron_left" :size="14" /> Memories
     </RouterLink>
 
@@ -106,6 +113,7 @@ onBeforeUnmount(() => {
           <h2 class="text-2xl font-semibold">{{ memory.title || 'Untitled memory' }}</h2>
           <div class="mt-1 flex flex-wrap items-center gap-1.5 text-sm text-night-500">
             <span v-if="memory.event_date">{{ fmtDate(memory.event_date, { weekday:'long', month:'long', day:'numeric', year:'numeric' }) }}</span>
+            <span class="text-night-400">· {{ ago }}</span>
             <Badge v-if="memory.album"><Icon name="memories" :size="12" /> {{ memory.album }}</Badge>
             <Badge v-if="subjects.byId(memory.subject_id)" :dot="subjects.byId(memory.subject_id)!.color">{{ subjects.byId(memory.subject_id)!.name }}</Badge>
           </div>
@@ -132,9 +140,9 @@ onBeforeUnmount(() => {
       </div>
       <EmptyState v-else icon="camera" title="No photos yet" body="Edit this memory to upload photos." />
 
-      <Card>
-        <h4 class="font-semibold mb-2">Reactions</h4>
-        <div class="flex flex-wrap gap-1.5">
+      <!-- reactions + comments flow under the photos, no boxes -->
+      <section class="space-y-4">
+        <div class="flex flex-wrap items-center gap-1.5">
           <button v-for="e in REACTION_EMOJIS" :key="e"
             @click="toggleReaction(e)"
             :class="['h-9 px-3 rounded-full border text-sm inline-flex items-center gap-1.5 transition-colors',
@@ -142,13 +150,18 @@ onBeforeUnmount(() => {
             <span>{{ e }}</span>
             <span class="text-xs opacity-80">{{ counts[e] ?? '' }}</span>
           </button>
+          <span v-if="friendsReacted" class="ml-1 text-xs text-night-500 dark:text-night-300">
+            {{ friendsReacted }} friend{{ friendsReacted === 1 ? '' : 's' }} reacted
+          </span>
         </div>
-      </Card>
 
-      <Card>
-        <h4 class="font-semibold mb-3">Comments</h4>
-        <CommentThread target-type="memory" :target-id="memory.id" />
-      </Card>
+        <div class="divider" />
+
+        <div>
+          <h4 class="t-section mb-3">Comments</h4>
+          <CommentThread target-type="memory" :target-id="memory.id" />
+        </div>
+      </section>
 
       <MemoryEditor v-model:open="editing" :editing="memory" />
 

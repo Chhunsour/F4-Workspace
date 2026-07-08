@@ -13,12 +13,14 @@ import LoadError from '@/components/ui/LoadError.vue'
 import Skeleton from '@/components/ui/Skeleton.vue'
 import ProjectEditor from '@/components/projects/ProjectEditor.vue'
 import { fmtDate } from '@/lib/utils'
+import { useI18n } from '@/composables/useI18n'
 
 const projects = useProjectsStore()
 const subjects = useSubjectsStore()
 const groups = useGroupsStore()
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 const editorOpen = ref(false)
 const editing = ref(null as any)
@@ -39,10 +41,10 @@ function openNew() {
   <div class="max-w-6xl mx-auto space-y-6">
     <div class="flex items-center justify-between flex-wrap gap-3">
       <div>
-        <h2 class="text-2xl font-semibold">Projects</h2>
-        <p class="text-sm text-night-500">{{ projects.items.length }} total</p>
+        <h2 class="text-2xl font-semibold">{{ t('Projects') }}</h2>
+        <p class="text-sm text-night-500">{{ t('{count} total', { count: projects.items.length }) }}</p>
       </div>
-      <Button @click="openNew"><Icon name="plus" :size="16" /> New project</Button>
+      <Button @click="openNew"><Icon name="plus" :size="16" /> {{ t('New project') }}</Button>
     </div>
 
     <LoadError v-if="error" :message="error" @retry="load" />
@@ -50,9 +52,9 @@ function openNew() {
       <Skeleton v-for="i in 3" :key="i" height="h-40" rounded="rounded-xl" />
     </div>
 
-    <EmptyState v-else-if="projects.items.length === 0" icon="projects" title="No projects yet"
-                body="Start a solo or group project. Track tasks, deadlines, and progress.">
-      <Button @click="openNew"><Icon name="plus" :size="16" /> New project</Button>
+    <EmptyState v-else-if="projects.items.length === 0" icon="projects" :title="t('No projects yet')"
+                :body="t('Start a solo or group project. Track tasks, deadlines, and progress.')">
+      <Button @click="openNew"><Icon name="plus" :size="16" /> {{ t('New project') }}</Button>
     </EmptyState>
 
     <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -64,12 +66,12 @@ function openNew() {
           </span>
           <div class="min-w-0 flex-1">
             <div class="font-semibold truncate">{{ p.name }}</div>
-            <p class="text-xs text-night-500 line-clamp-2">{{ p.description || 'No description' }}</p>
+            <p class="text-xs text-night-500 line-clamp-2">{{ p.description || t('No description') }}</p>
           </div>
         </div>
         <div class="mt-4">
           <div class="flex items-center justify-between text-xs text-night-500 mb-1">
-            <span>Progress</span><span>{{ p.progress }}%</span>
+            <span>{{ t('Progress') }}</span><span>{{ p.progress }}%</span>
           </div>
           <div class="h-1.5 bg-night-100 dark:bg-night-700 rounded-full overflow-hidden">
             <div class="h-full" :style="{ width: p.progress + '%', background: p.color ?? '#3a68ff' }" />
@@ -78,8 +80,8 @@ function openNew() {
         <div class="mt-3 flex items-center gap-2 text-xs text-night-500 flex-wrap">
           <span v-if="p.deadline" class="chip"><Icon name="clock" :size="12" /> {{ fmtDate(p.deadline, { month:'short', day:'numeric' }) }}</span>
           <span v-if="subjects.byId(p.subject_id)" class="chip">{{ subjects.byId(p.subject_id)!.name }}</span>
-          <span v-if="p.group_id" class="chip"><Icon name="groups" :size="12" /> group</span>
-          <span class="chip capitalize">{{ p.status.replace('_',' ') }}</span>
+          <span v-if="p.group_id" class="chip"><Icon name="groups" :size="12" /> {{ t('group') }}</span>
+          <span class="chip capitalize">{{ t(p.status.replace('_',' ')) }}</span>
         </div>
       </RouterLink>
     </div>

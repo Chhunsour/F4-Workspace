@@ -29,7 +29,7 @@ watch(() => [props.open, props.editing, props.defaultStatus], () => {
   if (props.editing) {
     Object.assign(form, {
       title: props.editing.title, description: props.editing.description ?? '',
-      status: props.editing.status, due_date: props.editing.due_date ?? '',
+      status: props.editing.status === 'review' ? 'in_progress' : props.editing.status, due_date: props.editing.due_date ?? '',
       assignee_id: props.editing.assignee_id,
       checklist: JSON.parse(JSON.stringify(props.editing.checklist ?? [])),
       newItem: '',
@@ -87,8 +87,8 @@ async function remove() {
       <Textarea v-model="form.description" label="Description" :rows="3" />
       <div class="grid grid-cols-2 gap-3">
         <Select v-model="form.status as any" label="Status" :options="[
-          { value: 'todo', label: 'To Do' },{ value: 'in_progress', label: 'In Progress' },
-          { value: 'review', label: 'Review' },{ value: 'completed', label: 'Completed' },
+          { value: 'todo', label: 'To Do' },{ value: 'in_progress', label: 'Doing' },
+          { value: 'completed', label: 'Done' },
         ]" />
         <Input v-model="form.due_date" type="date" label="Due date" />
         <Select v-model="form.assignee_id" label="Assignee" :options="memberOptions" placeholder="Unassigned" />

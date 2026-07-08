@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useScheduleStore, classDateForToday } from '@/stores/schedule'
 import { useSubjectsStore } from '@/stores/subjects'
+import { useAssignmentsStore } from '@/stores/assignments'
+import { useNotesStore } from '@/stores/notes'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Icon from '@/components/ui/Icon.vue'
@@ -9,17 +12,26 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 import LoadError from '@/components/ui/LoadError.vue'
 import Skeleton from '@/components/ui/Skeleton.vue'
 import ClassEditor from '@/components/schedule/ClassEditor.vue'
+import ClassDetail from '@/components/schedule/ClassDetail.vue'
 import { useLoad } from '@/composables/useLoad'
 import ClassCard from '@/components/schedule/ClassCard.vue'
 import { fmtDate, fmtTime, humanCountdown, WEEKDAY_LABELS, WEEKDAY_LONG } from '@/lib/utils'
 import type { ClassSchedule } from '@/types'
+import { useI18n } from '@/composables/useI18n'
 
+const route = useRoute()
+const router = useRouter()
 const schedule = useScheduleStore()
 const subjects = useSubjectsStore()
+const assignmentsStore = useAssignmentsStore()
+const notesStore = useNotesStore()
+const { t } = useI18n()
 
 const editorOpen = ref(false)
 const editing = ref<ClassSchedule | null>(null)
 const dayForNew = ref<number | undefined>(undefined)
+const detailOpen = ref(false)
+const detailItem = ref<ClassSchedule | null>(null)
 
 // Ticks every 30s so the now-line, "Now" badges and countdown stay honest.
 const now = ref(new Date())
@@ -27,10 +39,16 @@ let timer: number | undefined
 
 onMounted(() => {
   timer = window.setInterval(() => { now.value = new Date() }, 30_000)
+  if (route.query.new === '1') consumeNewQuery()
 })
+watch(() => route.query.new, n => { if (n === '1') consumeNewQuery() })
+function consumeNewQuery() {
+  openNew(activeDay.value)
+  router.replace({ query: { ...route.query, new: undefined } })
+}
 onBeforeUnmount(() => window.clearInterval(timer))
 
-const { error, loading, load } = useLoad(() => Promise.all([schedule.fetch(), subjects.fetch()]))
+const { error, loading, load } = useLoad(() => Promise.all([schedule.fetch(), subjects.fetch(), assignmentsStore.fetch(), notesStore.fetch()]))
 
 // ---- week (Mon → Sun; weekOffset pages through weeks) ----
 const todayNum = computed(() => now.value.getDay())
@@ -115,7 +133,12 @@ function openNew(d: number) {
   dayForNew.value = d
   editorOpen.value = true
 }
+function openDetail(c: ClassSchedule) {
+  detailItem.value = c
+  detailOpen.value = true
+}
 function openEdit(c: ClassSchedule) {
+  detailOpen.value = false
   editing.value = c
   editorOpen.value = true
 }
@@ -126,17 +149,17 @@ function openEdit(c: ClassSchedule) {
     <!-- Header -->
     <header class="flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h2 class="text-2xl font-semibold tracking-tight">Weekly Schedule</h2>
+        <h2 class="text-2xl font-semibold tracking-tight">{{ t('Weekly Schedule') }}</h2>
         <p class="mt-0.5 text-sm text-night-500 dark:text-night-300">
           Batch 22 · Evening shift · Term Mar 16 – Jun 26, 2026
         </p>
       </div>
       <div class="flex items-center gap-2">
         <span class="mr-1 hidden text-sm tabular-nums text-night-500 dark:text-night-300 sm:block">{{ weekRange }}</span>
-        <Button variant="secondary" size="sm" aria-label="Previous week" @click="weekOffset--"><Icon name="chevron_left" :size="16" /></Button>
-        <Button variant="secondary" size="sm" @click="goToday">Today</Button>
-        <Button variant="secondary" size="sm" aria-label="Next week" @click="weekOffset++"><Icon name="chevron_right" :size="16" /></Button>
-        <Button size="sm" @click="openNew(activeDay)"><Icon name="plus" :size="16" /> Add class</Button>
+        <Button variant="secondary" size="sm" :aria-label="t('Previous Week')" @click="weekOffset--"><Icon name="chevron_left" :size="16" /></Button>
+        <Button variant="secondary" size="sm" @click="goToday">{{ t('Today') }}</Button>
+        <Button variant="secondary" size="sm" :aria-label="t('Next Week')" @click="weekOffset++"><Icon name="chevron_right" :size="16" /></Button>
+        <Button size="sm" @click="openNew(activeDay)"><Icon name="plus" :size="16" /> {{ t('Add class') }}</Button>
       </div>
     </header>
 
@@ -152,14 +175,14 @@ function openEdit(c: ClassSchedule) {
          class="flex items-center gap-3 rounded-xl border border-surface-border bg-white px-4 py-2.5 shadow-soft dark:border-night-700 dark:bg-night-800">
       <span class="h-8 w-1 shrink-0 rounded-full" :style="{ background: next.subject?.color ?? '#3a68ff' }" />
       <div class="min-w-0 flex-1 text-sm">
-        <span class="mr-2 text-[11px] font-semibold uppercase tracking-wider text-night-400 dark:text-night-300">Next class</span>
-        <span class="font-medium text-night-900 dark:text-night-50">{{ next.subject?.name ?? 'Unnamed subject' }}</span>
+        <span class="mr-2 text-[11px] font-semibold uppercase tracking-wider text-night-400 dark:text-night-300">{{ t('Next class') }}</span>
+        <span class="font-medium text-night-900 dark:text-night-50">{{ next.subject?.name ?? t('Unnamed subject') }}</span>
         <span class="text-night-500 dark:text-night-300">
-          · {{ WEEKDAY_LONG[next.c.weekday] }} {{ fmtTime(next.c.start_time) }}<template v-if="next.c.room"> · Room {{ next.c.room }}</template>
+          · {{ t(WEEKDAY_LONG[next.c.weekday]) }} {{ fmtTime(next.c.start_time) }}<template v-if="next.c.room"> · {{ t('Room {room}', { room: next.c.room }) }}</template>
         </span>
       </div>
       <span class="shrink-0 rounded-full bg-accent-100 px-2.5 py-1 text-xs font-semibold text-accent-700 dark:bg-accent-300/15 dark:text-accent-300">
-        in {{ humanCountdown(next.start, now) }}
+        {{ t('in {time}', { time: humanCountdown(next.start, now) }) }}
       </span>
     </div>
 
@@ -185,16 +208,16 @@ function openEdit(c: ClassSchedule) {
           <h3 class="font-semibold">
             {{ WEEKDAY_LONG[activeDay] }}
             <span v-if="isToday(activeDay)"
-                  class="ml-1.5 rounded-full bg-accent-300 px-2 py-0.5 align-middle text-[10px] font-bold uppercase tracking-wide text-night-900">Today</span>
+                  class="ml-1.5 rounded-full bg-accent-300 px-2 py-0.5 align-middle text-[10px] font-bold uppercase tracking-wide text-night-900">{{ t('Today') }}</span>
           </h3>
-          <button class="link text-sm font-medium" @click="openNew(activeDay)">+ Add</button>
+          <button class="link text-sm font-medium" @click="openNew(activeDay)">+ {{ t('Add') }}</button>
         </div>
-        <EmptyState v-if="schedule.byWeekday(activeDay).length === 0" icon="schedule" title="No classes"
-                    body="Free day — enjoy it, or add a class above." />
+        <EmptyState v-if="schedule.byWeekday(activeDay).length === 0" icon="schedule" :title="t('No classes')"
+                    :body="t('Free day — enjoy it, or add a class above.')" />
         <ul v-else class="divide-y divide-surface-border dark:divide-night-700">
           <li v-for="c in schedule.byWeekday(activeDay)" :key="c.id">
             <ClassCard variant="row" :item="c" :subject="subjects.byId(c.subject_id)"
-                       :live="isLive(c)" @click="openEdit(c)" />
+                       :live="isLive(c)" @click="openDetail(c)" />
           </li>
         </ul>
       </Card>
@@ -217,7 +240,7 @@ function openEdit(c: ClassSchedule) {
               {{ d.date.getDate() }}
             </span>
             <button class="flex h-6 w-6 items-center justify-center rounded-md text-night-400 opacity-0 transition-opacity hover:bg-night-100 hover:text-night-600 group-hover:opacity-100 dark:hover:bg-night-700 dark:hover:text-night-100"
-                    :aria-label="`Add class on ${WEEKDAY_LONG[d.weekday]}`"
+                    :aria-label="t('Add class on {day}', { day: t(WEEKDAY_LONG[d.weekday]) })"
                     @click="openNew(d.weekday)">
               <Icon name="plus" :size="14" />
             </button>
@@ -250,13 +273,13 @@ function openEdit(c: ClassSchedule) {
                         isToday(d.weekday) && 'bg-brand-50/50 dark:bg-brand-900/10']">
             <div v-if="schedule.byWeekday(d.weekday).length === 0"
                  class="pointer-events-none absolute inset-x-2 top-1/2 -translate-y-1/2 text-center text-[11px] italic text-night-300 dark:text-night-500">
-              No class
+              {{ t('No class') }}
             </div>
 
             <ClassCard v-for="c in schedule.byWeekday(d.weekday)" :key="c.id"
                        class="absolute inset-x-1.5" :style="blockStyle(c)"
                        :item="c" :subject="subjects.byId(c.subject_id)"
-                       :live="isLive(c)" @click="openEdit(c)" />
+                       :live="isLive(c)" @click="openDetail(c)" />
 
             <!-- Now line -->
             <div v-if="isToday(d.weekday) && nowInRange"
@@ -272,6 +295,7 @@ function openEdit(c: ClassSchedule) {
 
     </template>
 
+    <ClassDetail v-model:open="detailOpen" :item="detailItem" @edit="openEdit" />
     <ClassEditor v-model:open="editorOpen" :editing="editing" :default-weekday="dayForNew" />
   </div>
 </template>

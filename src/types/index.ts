@@ -25,4 +25,4 @@ export const NOTE_COLORS = [
   '#dbeafe', '#ede9fe', '#fce7f3', '#e2e8f0',
 ]
 
-export const REACTION_EMOJIS = ['❤️','😂','😭','🔥','👏','🎉','😍','🥲']
+export const REACTION_EMOJIS = ['❤️','😂','😭','🔥','👏','🫡']

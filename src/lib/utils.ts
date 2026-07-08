@@ -69,6 +69,29 @@ export function humanCountdown(target: Date, now: Date = new Date()): string {
   return `${sec}s`
 }
 
+/** Student-friendly due label: "Due tonight", "Due tomorrow", "3 days left", "Overdue by 2 days". */
+export function dueLabel(due: Date, now: Date = new Date()): string {
+  const days = daysBetween(now, due)
+  if (due < now) {
+    const late = daysBetween(due, now)
+    return late === 0 ? `Overdue by ${humanCountdown(now, due)}` : `Overdue by ${late} day${late === 1 ? '' : 's'}`
+  }
+  if (days === 0) return due.getHours() >= 17 ? 'Due tonight' : 'Due today'
+  if (days === 1) return 'Due tomorrow'
+  return `${days} days left`
+}
+
+/** Loose relative label for memories: "today", "3 days ago", "2 months ago", "1 year ago". */
+export function timeAgo(d: Date, now: Date = new Date()): string {
+  const days = daysBetween(d, now)
+  if (days <= 0) return 'today'
+  if (days === 1) return 'yesterday'
+  if (days < 30) return `${days} days ago`
+  if (days < 365) { const m = Math.round(days / 30); return `${m} month${m === 1 ? '' : 's'} ago` }
+  const y = Math.round(days / 365)
+  return `${y} year${y === 1 ? '' : 's'} ago`
+}
+
 export function secondsToClock(total: number) {
   const s = Math.max(0, Math.floor(total))
   const hh = Math.floor(s / 3600)

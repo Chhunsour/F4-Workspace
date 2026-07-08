@@ -76,12 +76,14 @@ export const useMemoriesStore = defineStore('memories', {
       this.items = this.items.filter(x => x.id !== id)
       delete this.imagesByMemory[id]
     },
-    async uploadImages(memoryId: string, files: File[]) {
+    async uploadImages(memoryId: string, files: File[], onProgress?: (done: number, total: number) => void) {
       const { data: sess } = await supabase.auth.getSession()
       const uid = sess.session?.user.id
       if (!uid) throw new Error('Not signed in')
       const existing = this.imagesByMemory[memoryId]?.length ?? 0
       let position = existing
+      let done = 0
+      onProgress?.(done, files.length)
       for (const file of files) {
         const blob = await compressImage(file, 1800, 0.82)
         const path = `${uid}/${memoryId}/${Date.now()}-${position}.webp`
@@ -95,6 +97,8 @@ export const useMemoriesStore = defineStore('memories', {
         if (error) throw error
         ;(this.imagesByMemory[memoryId] ??= []).push(data as MemoryImage)
         position++
+        done++
+        onProgress?.(done, files.length)
       }
     },
     async toggleFavorite(id: string) {

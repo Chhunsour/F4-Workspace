@@ -8,7 +8,9 @@ import { useStudyStore } from '@/stores/study'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher.vue'
 import { useConfirm } from '@/composables/useConfirm'
+import { useI18n } from '@/composables/useI18n'
 
 const theme = useThemeStore()
 const auth = useAuthStore()
@@ -16,6 +18,7 @@ const study = useStudyStore()
 const confirm = useConfirm()
 const router = useRouter()
 const toast = useToast()
+const { t } = useI18n()
 
 const goal = ref(study.weeklyGoalMinutes)
 watch(() => study.weeklyGoalMinutes, v => { goal.value = v })
@@ -25,8 +28,8 @@ async function saveGoal() {
   savingGoal.value = true
   try {
     await auth.updateProfile({ weekly_goal_minutes: v })
-    toast.success('Weekly goal saved')
-  } catch (e: any) { toast.error('Could not save goal', e?.message) }
+    toast.success(t('Weekly goal saved'))
+  } catch (e: any) { toast.error(t('Could not save goal'), e?.message) }
   finally { savingGoal.value = false }
 }
 
@@ -37,7 +40,7 @@ const themes = [
 ]
 
 async function doSignOut() {
-  const ok = await confirm.ask({ title: 'Sign out?', confirmLabel: 'Sign out' })
+  const ok = await confirm.ask({ title: t('Sign out?'), confirmLabel: t('Sign out') })
   if (!ok) return
   await auth.signOut()
   router.replace('/sign-in')
@@ -47,37 +50,43 @@ async function doSignOut() {
 <template>
   <div class="max-w-3xl mx-auto space-y-6">
     <div>
-      <h2 class="text-2xl font-semibold">Settings</h2>
-      <p class="text-sm text-night-500">Theme, study goals, account.</p>
+      <h2 class="text-2xl font-semibold">{{ t('Settings') }}</h2>
+      <p class="text-sm text-night-500">{{ t('Theme, study goals, account.') }}</p>
     </div>
 
     <Card>
-      <h3 class="font-semibold mb-3">Theme</h3>
+      <h3 class="font-semibold mb-3">{{ t('Theme') }}</h3>
       <div class="grid gap-2 sm:grid-cols-3">
-        <button v-for="t in themes" :key="t.value" type="button"
-          @click="theme.setMode(t.value as any)"
+        <button v-for="themeOption in themes" :key="themeOption.value" type="button"
+          @click="theme.setMode(themeOption.value as any)"
           :class="['text-left rounded-xl border p-3 transition-colors',
-                   theme.mode === t.value ? 'border-brand-500 ring-2 ring-brand-200 dark:ring-brand-900' : 'border-surface-border dark:border-night-700 hover:bg-night-50 dark:hover:bg-night-800']">
-          <div class="font-medium">{{ t.label }}</div>
-          <div class="text-xs text-night-500">{{ t.hint }}</div>
+                   theme.mode === themeOption.value ? 'border-brand-500 ring-2 ring-brand-200 dark:ring-brand-900' : 'border-surface-border dark:border-night-700 hover:bg-night-50 dark:hover:bg-night-800']">
+          <div class="font-medium">{{ t(themeOption.label) }}</div>
+          <div class="text-xs text-night-500">{{ t(themeOption.hint) }}</div>
         </button>
       </div>
     </Card>
 
     <Card>
-      <h3 class="font-semibold mb-3">Study goals</h3>
+      <h3 class="font-semibold mb-3">{{ t('Language') }}</h3>
+      <p class="mb-3 text-sm text-night-500 dark:text-night-300">{{ t('Choose the language used across Uni Life.') }}</p>
+      <LanguageSwitcher />
+    </Card>
+
+    <Card>
+      <h3 class="font-semibold mb-3">{{ t('Study goals') }}</h3>
       <div class="flex flex-wrap items-end gap-3">
         <div class="w-full sm:w-64">
-          <Input v-model="goal as any" type="number" min="30" step="30" label="Weekly goal (minutes)" hint="Default: 600 min = 10 hours" />
+          <Input v-model="goal as any" type="number" min="30" step="30" :label="t('Weekly goal (minutes)')" :hint="t('Default: 600 min = 10 hours')" />
         </div>
-        <Button :loading="savingGoal" @click="saveGoal">Save</Button>
+        <Button :loading="savingGoal" @click="saveGoal">{{ t('Save') }}</Button>
       </div>
     </Card>
 
     <Card>
-      <h3 class="font-semibold mb-3">Account</h3>
-      <div class="text-sm text-night-500 mb-3">Signed in as <span class="font-medium text-night-900 dark:text-night-50">{{ auth.email }}</span></div>
-      <Button variant="danger" @click="doSignOut">Sign out</Button>
+      <h3 class="font-semibold mb-3">{{ t('Account') }}</h3>
+      <div class="text-sm text-night-500 mb-3">{{ t('Signed in as') }} <span class="font-medium text-night-900 dark:text-night-50">{{ auth.email }}</span></div>
+      <Button variant="danger" @click="doSignOut">{{ t('Sign out') }}</Button>
     </Card>
   </div>
 </template>

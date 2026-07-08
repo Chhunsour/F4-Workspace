@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,12 +15,14 @@
 }
 html.dark {
   color-scheme: dark;
-  --glass-bg: rgba(255, 255, 255, 0.055);
-  --glass-bg-strong: rgba(255, 255, 255, 0.09);
-  --glass-border: rgba(255, 255, 255, 0.10);
+  --glass-bg: rgba(255, 255, 255, 0.065);
+  --glass-bg-strong: rgba(255, 255, 255, 0.10);
+  --glass-border: rgba(255, 255, 255, 0.11);
   --glass-hair: rgba(255, 255, 255, 0.08);
-  --panel-bg: rgba(20, 24, 33, 0.55);
+  --panel-bg: rgba(20, 24, 33, 0.58);
+  --solid-surface: rgba(26, 30, 40, 0.92);
 }
+:root { --solid-surface: rgba(255, 255, 255, 0.92); }
 
 html, body, #app {
   height: 100%;
@@ -37,6 +41,18 @@ body {
     radial-gradient(50rem 50rem at 100% 0%, rgba(255, 202, 71, 0.10), transparent 55%),
     radial-gradient(70rem 70rem at 50% 120%, rgba(58, 104, 255, 0.06), transparent 60%);
   background-attachment: fixed;
+}
+html.lang-km body {
+  font-family: "Kantumruy Pro", sans-serif;
+  line-height: 1.7;
+  letter-spacing: 0;
+}
+html.lang-km button,
+html.lang-km input,
+html.lang-km select,
+html.lang-km textarea {
+  font-family: "Kantumruy Pro", sans-serif;
+  line-height: 1.55;
 }
 html.dark body {
   @apply text-night-50;
@@ -108,6 +124,14 @@ html.dark :focus-visible {
     background: var(--glass-bg-strong);
   }
 
+  /* Opaque surface for dense/long-form content (forms, tables, schedule grid)
+     where transparency would hurt readability. Strong glass stays for chrome. */
+  .surface-solid {
+    @apply border rounded-2xl;
+    background: var(--solid-surface);
+    border-color: var(--glass-hair);
+  }
+
   /* Solid-ish inner tile used inside glass cards (list rows, stat wells) */
   .tile {
     @apply rounded-xl border transition-colors duration-200;
@@ -141,22 +165,42 @@ html.dark :focus-visible {
     box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.18), 0 6px 16px -6px rgba(0,0,0,0.5);
   }
 
-  /* ---------- Nav panel items ---------- */
+  /* ---------- Nav panel items ----------
+     Compact rows; active = soft translucent tint + small accent bar,
+     NOT a big elevated white pill. */
   .nav-item {
-    @apply relative flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-night-600 dark:text-night-200
+    @apply relative flex items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-[13px] text-night-600 dark:text-night-200
            transition-colors duration-200;
   }
+  html.lang-km .t-page,
+  html.lang-km .t-card {
+    letter-spacing: 0;
+    line-height: 1.45;
+  }
+  html.lang-km .t-section {
+    letter-spacing: 0.02em;
+    line-height: 1.55;
+  }
+  html.lang-km .nav-item {
+    @apply py-2 text-[13.5px];
+  }
+  html.lang-km .chip,
+  html.lang-km .count-pill {
+    line-height: 1.45;
+  }
   .nav-item:hover {
-    background: rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.45);
     @apply text-night-900 dark:text-white;
   }
-  html.dark .nav-item:hover { background: rgba(255,255,255,0.06); }
+  html.dark .nav-item:hover { background: rgba(255,255,255,0.055); }
   .nav-item-active {
-    background: var(--glass-bg-strong);
-    @apply text-night-900 dark:text-white font-semibold shadow-glassSm;
-    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    @apply text-night-900 dark:text-white font-medium;
   }
-  html.dark .nav-item-active { @apply shadow-glassDk; }
+  .nav-item-active::before {
+    content: '';
+    @apply absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-brand-500 dark:bg-brand-400;
+  }
 
   /* ---------- Chips / badges ---------- */
   .chip {
@@ -168,8 +212,8 @@ html.dark :focus-visible {
   html.dark .chip { background: rgba(255,255,255,0.06); }
 
   .count-pill {
-    @apply inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-md text-[11px] font-semibold
-           text-night-500 dark:text-night-300;
+    @apply inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-[5px] text-[10.5px] font-semibold
+           text-night-500 dark:text-night-300 tabular-nums;
     background: rgba(17,24,39,0.06);
   }
   html.dark .count-pill { background: rgba(255,255,255,0.08); }
@@ -177,19 +221,20 @@ html.dark :focus-visible {
   .divider { @apply border-t; border-color: var(--glass-hair); }
 
   /* ---------- Form controls (glass) ---------- */
+  /* Inputs read as near-solid for legibility (spec: solid surfaces for forms). */
   .input-base {
-    @apply w-full rounded-xl px-3.5 py-2.5 text-sm min-h-[42px] backdrop-blur-md
+    @apply w-full rounded-xl px-3.5 py-2.5 text-base sm:text-sm min-h-[44px]
            text-night-900 dark:text-night-50 placeholder:text-night-400 dark:placeholder:text-night-400
            transition-[border-color,box-shadow,background-color] duration-200 border;
-    background: rgba(255,255,255,0.45);
+    background: rgba(255,255,255,0.7);
     border-color: var(--glass-border);
   }
-  html.dark .input-base { background: rgba(255,255,255,0.04); }
+  html.dark .input-base { background: rgba(255,255,255,0.055); }
   .input-base:focus {
     @apply border-brand-500/70 dark:border-brand-400/70 ring-2 ring-brand-500/15 dark:ring-brand-400/20;
-    background: rgba(255,255,255,0.62);
+    background: rgba(255,255,255,0.9);
   }
-  html.dark .input-base:focus { background: rgba(255,255,255,0.07); }
+  html.dark .input-base:focus { background: rgba(255,255,255,0.09); }
 
   .link {
     @apply text-brand-600 dark:text-brand-300 font-medium hover:text-brand-700 dark:hover:text-brand-200
@@ -216,8 +261,8 @@ html.dark :focus-visible {
   50%      { opacity: 0.5; }
 }
 
-/* Tappable press feedback */
-button, a, [role="button"] { -webkit-tap-highlight-color: transparent; }
+/* Tappable press feedback; touch-action removes the 300ms tap delay on touch devices */
+button, a, [role="button"], input, select, textarea { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .press { @apply active:scale-[0.98] transition-transform duration-100; }
 
 @media (prefers-reduced-motion: reduce) {

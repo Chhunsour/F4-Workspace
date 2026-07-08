@@ -13,6 +13,7 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 import LoadError from '@/components/ui/LoadError.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import Icon from '@/components/ui/Icon.vue'
+import { fmtDate } from '@/lib/utils'
 import { useToast } from '@/composables/useToast'
 import { useConfirm } from '@/composables/useConfirm'
 
@@ -32,6 +33,24 @@ watch(groupId, id => { if (id) load() })
 
 const sharedProjects = computed(() => projects.items.filter(p => p.group_id === groupId.value))
 const sharedMemories = computed(() => mem.items.filter(m => m.group_id === groupId.value))
+
+// What's been happening — built from data this page already loads.
+const activity = computed(() => {
+  const out: { text: string; when: string; to: string }[] = []
+  for (const m of sharedMemories.value) {
+    const who = m.owner_id === auth.userId ? 'You' : 'A friend'
+    out.push({ text: `${who} added "${m.title || 'a memory'}"`, when: m.created_at, to: `/memories/${m.id}` })
+  }
+  for (const p of sharedProjects.value) {
+    if (p.status === 'completed') out.push({ text: `${p.name} was finished`, when: p.updated_at, to: `/projects/${p.id}` })
+    else if (p.progress > 0) out.push({ text: `${p.name} is ${p.progress}% done`, when: p.updated_at, to: `/projects/${p.id}` })
+  }
+  for (const mb of groups.detail?.members ?? []) {
+    if (mb.user_id !== groups.detail?.group.owner_id)
+      out.push({ text: `${mb.profile?.full_name ?? 'Someone'} joined the group`, when: mb.joined_at, to: '#members' })
+  }
+  return out.sort((a, b) => b.when.localeCompare(a.when)).slice(0, 6)
+})
 
 async function copyCode() {
   if (!groups.detail) return
@@ -64,29 +83,42 @@ async function deleteGroup() {
     <LoadError v-if="error" :message="error" @retry="load" />
     <LoadingSpinner v-else-if="groups.detailLoading" label="Loading group…" />
     <template v-else-if="groups.detail">
-      <div class="flex items-start justify-between flex-wrap gap-3">
-        <div class="flex items-start gap-3">
-          <div class="h-14 w-14 rounded-xl bg-brand-600 text-white grid place-items-center font-semibold text-2xl shrink-0">
-            {{ groups.detail.group.name.slice(0,1).toUpperCase() }}
-          </div>
-          <div>
-            <h2 class="t-page !text-2xl">{{ groups.detail.group.name }}</h2>
-            <p class="mt-0.5 text-sm text-night-500 dark:text-night-300 max-w-2xl">{{ groups.detail.group.description || 'No description' }}</p>
-            <div class="mt-2 flex items-center gap-2">
-              <button class="chip" @click="copyCode">
-                Code · <span class="font-mono font-semibold">{{ groups.detail.group.join_code }}</span>
-                <span v-if="codeCopied" class="text-emerald-600">✓ copied</span>
-              </button>
-            </div>
-          </div>
+      <div class="flex items-start gap-3">
+        <div class="h-14 w-14 rounded-xl bg-brand-600 text-white grid place-items-center font-semibold text-2xl shrink-0">
+          {{ groups.detail.group.name.slice(0,1).toUpperCase() }}
         </div>
-        <div class="flex gap-2">
-          <Button v-if="groups.detail.group.owner_id === auth.userId" variant="danger" size="sm" @click="deleteGroup">Delete</Button>
-          <Button v-else variant="secondary" size="sm" @click="leave">Leave</Button>
+        <div class="min-w-0">
+          <h2 class="t-page !text-2xl">{{ groups.detail.group.name }}</h2>
+          <p class="mt-0.5 text-sm text-night-500 dark:text-night-300 max-w-2xl">{{ groups.detail.group.description || 'No description' }}</p>
+          <div class="mt-2.5 flex items-center gap-2">
+            <div class="flex -space-x-2">
+              <Avatar v-for="m in groups.detail.members.slice(0, 6)" :key="m.user_id"
+                      :name="m.profile?.full_name" size="sm"
+                      class="ring-2 ring-white dark:ring-night-800" :title="m.profile?.full_name ?? ''" />
+            </div>
+            <span class="text-xs text-night-500 dark:text-night-300">
+              {{ groups.detail.members.length }} member{{ groups.detail.members.length === 1 ? '' : 's' }}
+            </span>
+          </div>
         </div>
       </div>
 
       <div class="grid gap-4 lg:grid-cols-3">
+        <Card v-if="activity.length" class="lg:col-span-3">
+          <h4 class="font-semibold mb-3">What's been happening</h4>
+          <ul class="space-y-1">
+            <li v-for="(a, i) in activity" :key="i">
+              <component :is="a.to === '#members' ? 'div' : 'router-link'" :to="a.to === '#members' ? undefined : a.to"
+                         class="-mx-2 flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm transition-colors"
+                         :class="a.to !== '#members' && 'hover:bg-black/5 dark:hover:bg-white/5'">
+                <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
+                <span class="min-w-0 flex-1 truncate text-night-700 dark:text-night-100">{{ a.text }}</span>
+                <span class="shrink-0 text-[11px] text-night-400">{{ fmtDate(a.when, { month:'short', day:'numeric' }) }}</span>
+              </component>
+            </li>
+          </ul>
+        </Card>
+
         <Card class="lg:col-span-2">
           <h4 class="font-semibold mb-3">Shared projects</h4>
           <EmptyState v-if="sharedProjects.length === 0" icon="projects" title="No shared projects yet"
@@ -131,6 +163,20 @@ async function deleteGroup() {
             </RouterLink>
           </div>
         </Card>
+      </div>
+
+      <!-- group settings: useful, but not the point of the page -->
+      <div class="flex flex-wrap items-center gap-2 border-t border-surface-border pt-4 dark:border-night-700">
+        <span class="text-xs text-night-500 dark:text-night-300">Invite friends with this code:</span>
+        <button class="chip" @click="copyCode">
+          <span class="font-mono font-semibold">{{ groups.detail.group.join_code }}</span>
+          <span v-if="codeCopied" class="text-emerald-600">copied</span>
+          <span v-else class="text-night-400">tap to copy</span>
+        </button>
+        <div class="flex-1" />
+        <Button v-if="groups.detail.group.owner_id === auth.userId" variant="ghost" size="sm"
+                class="!text-red-500" @click="deleteGroup">Delete group</Button>
+        <Button v-else variant="ghost" size="sm" @click="leave">Leave group</Button>
       </div>
     </template>
     <EmptyState v-else icon="search" title="Group not found" body="It may have been deleted." />

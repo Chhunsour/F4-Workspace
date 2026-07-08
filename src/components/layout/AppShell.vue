@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import IconRail from './IconRail.vue'
-import NavPanel from './NavPanel.vue'
 import TopBar from './TopBar.vue'
 import MobileBottomNav from './MobileBottomNav.vue'
 import { onMounted } from 'vue'
@@ -11,14 +10,14 @@ onMounted(() => { subjects.fetch().catch(() => {}) })
 </script>
 
 <template>
-  <div class="min-h-dvh flex gap-3 p-3 lg:p-4 lg:pr-4">
-    <IconRail />
-    <NavPanel />
+  <div class="min-h-dvh flex p-3 lg:p-4">
+    <!-- Icon rail: always visible on desktop. Tight gap so the context panel
+         reads as sliding out of the same navigation system. -->
+    <IconRail class="lg:mr-3" />
 
+    <!-- Main workspace: flex-1 always fills remaining space -->
     <div class="flex-1 min-w-0 flex flex-col gap-3">
-      <!-- Mobile chrome only; desktop uses the rail + panel -->
       <TopBar />
-
       <main class="glass-panel flex-1 min-w-0 overflow-y-auto lg:h-[calc(100dvh-2rem)]
                    px-4 sm:px-6 lg:px-8 py-6 pb-28 lg:pb-8 !rounded-3xl">
         <router-view v-slot="{ Component }">
@@ -32,3 +31,4 @@ onMounted(() => { subjects.fetch().catch(() => {}) })
     <MobileBottomNav />
   </div>
 </template>
+

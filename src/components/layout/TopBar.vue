@@ -6,17 +6,19 @@ import Logo from './Logo.vue'
 import NotificationBell from './NotificationBell.vue'
 import { useAuthStore } from '@/stores/auth'
 import { computed } from 'vue'
+import { useI18n } from '@/composables/useI18n'
 
 const auth = useAuthStore()
 const route = useRoute()
+const { t } = useI18n()
 
 const titleMap: Record<string, string> = {
-  dashboard: 'Dashboard', schedule: 'Schedule', assignments: 'Assignments',
+  dashboard: 'Home', schedule: 'Schedule', subject: 'Subject', assignments: 'Tasks',
   projects: 'Projects', project: 'Project', study: 'Study', focus: 'Focus',
-  calendar: 'Calendar', notes: 'Notes', memories: 'Memories', memory: 'Memory',
+  calendar: 'Calendar', notes: 'Notes', memories: 'Memory', 'memory-dashboard': 'Memory', memory: 'Memory',
   groups: 'Groups', group: 'Group', profile: 'Profile', settings: 'Settings',
 }
-const title = computed(() => titleMap[String(route.name ?? 'dashboard')] ?? 'Uni Life')
+const title = computed(() => t(titleMap[String(route.name ?? 'dashboard')] ?? 'Uni Life'))
 </script>
 
 <template>
@@ -29,7 +31,7 @@ const title = computed(() => titleMap[String(route.name ?? 'dashboard')] ?? 'Uni
     <div class="ml-auto flex items-center gap-2">
       <NotificationBell />
       <ThemeToggle />
-      <RouterLink to="/profile" aria-label="Profile">
+      <RouterLink to="/profile" :aria-label="t('Profile')">
         <Avatar :src="auth.avatarPublicUrl" :name="auth.displayName" size="md" />
       </RouterLink>
     </div>

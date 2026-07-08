@@ -9,6 +9,7 @@ export const useNotesStore = defineStore('notes', {
     loading: false,
     q: '',
     activeTag: '' as string,
+    activeSubject: '' as string,
   }),
   getters: {
     tags(state) {
@@ -20,6 +21,7 @@ export const useNotesStore = defineStore('notes', {
       return [...state.items]
         .filter(n => {
           if (state.activeTag && !n.tags.includes(state.activeTag)) return false
+          if (state.activeSubject && n.subject_id !== state.activeSubject) return false
           if (state.q) {
             const q = state.q.toLowerCase()
             if (!(n.title || '').toLowerCase().includes(q) &&

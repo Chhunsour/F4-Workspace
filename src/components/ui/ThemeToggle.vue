@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useThemeStore } from '@/stores/theme'
+import { useI18n } from '@/composables/useI18n'
 const props = defineProps<{ bare?: boolean }>()
 const theme = useThemeStore()
+const { t } = useI18n()
 const cls = computed(() =>
   props.bare
     ? 'flex items-center justify-center text-current transition-colors'
@@ -11,7 +13,7 @@ const cls = computed(() =>
 )
 </script>
 <template>
-  <button :class="cls" aria-label="Toggle theme" @click="theme.toggle()">
+  <button :class="cls" :aria-label="t('Toggle theme')" @click="theme.toggle()">
     <svg v-if="theme.resolved === 'dark'" width="18" height="18" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="4" fill="currentColor"/>
       <g stroke="currentColor" stroke-width="1.8" stroke-linecap="round">

@@ -50,7 +50,8 @@ const checklistTotal = computed(() => props.task.checklist.length)
 </template>
 
 <script lang="ts">
-const ORDER = ['todo','in_progress','review','completed'] as const
-function nextStatus(s: any) { const i = ORDER.indexOf(s); return ORDER[Math.min(ORDER.length-1, i+1)] }
-function previousStatus(s: any) { const i = ORDER.indexOf(s); return ORDER[Math.max(0, i-1)] }
+const ORDER = ['todo','in_progress','completed'] as const
+const norm = (s: any) => s === 'review' ? 'in_progress' : s
+function nextStatus(s: any) { const i = ORDER.indexOf(norm(s)); return ORDER[Math.min(ORDER.length-1, i+1)] }
+function previousStatus(s: any) { const i = ORDER.indexOf(norm(s)); return ORDER[Math.max(0, i-1)] }
 </script>
