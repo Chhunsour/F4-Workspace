@@ -99,7 +99,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="max-w-4xl mx-auto space-y-4">
-    <RouterLink to="/memory" class="text-xs text-night-500 hover:text-brand-600 inline-flex items-center gap-1">
+    <RouterLink to="/memory" class="text-xs font-medium text-night-600 dark:text-night-200 hover:text-brand-600 dark:hover:text-brand-300 inline-flex items-center gap-1 transition-colors">
       <Icon name="chevron_left" :size="14" /> Memories
     </RouterLink>
 
@@ -110,17 +110,17 @@ onBeforeUnmount(() => {
     <template v-else-if="memory">
       <div class="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h2 class="text-2xl font-semibold">{{ memory.title || 'Untitled memory' }}</h2>
-          <div class="mt-1 flex flex-wrap items-center gap-1.5 text-sm text-night-500">
-            <span v-if="memory.event_date">{{ fmtDate(memory.event_date, { weekday:'long', month:'long', day:'numeric', year:'numeric' }) }}</span>
-            <span class="text-night-400">· {{ ago }}</span>
+          <h2 class="t-page">{{ memory.title || 'Untitled memory' }}</h2>
+          <div class="mt-2 flex flex-wrap items-center gap-1.5 text-sm">
+            <span v-if="memory.event_date" class="font-semibold text-night-800 dark:text-white">{{ fmtDate(memory.event_date, { weekday:'long', month:'long', day:'numeric', year:'numeric' }) }}</span>
+            <span class="text-night-500 dark:text-night-300">· {{ ago }}</span>
             <Badge v-if="memory.album"><Icon name="memories" :size="12" /> {{ memory.album }}</Badge>
             <Badge v-if="subjects.byId(memory.subject_id)" :dot="subjects.byId(memory.subject_id)!.color">{{ subjects.byId(memory.subject_id)!.name }}</Badge>
           </div>
         </div>
         <div class="flex items-center gap-2">
           <Button variant="secondary" size="sm" @click="toggleFavorite">
-            <Icon name="heart" :size="16" :class="memory.is_favorite ? 'text-accent-500' : ''" />
+            <Icon name="heart" :size="16" :class="memory.is_favorite ? 'text-blush-500' : ''" />
             {{ memory.is_favorite ? 'Favorited' : 'Favorite' }}
           </Button>
           <Button variant="secondary" size="sm" @click="editing = true"><Icon name="edit" :size="16" /> Edit</Button>
@@ -145,12 +145,14 @@ onBeforeUnmount(() => {
         <div class="flex flex-wrap items-center gap-1.5">
           <button v-for="e in REACTION_EMOJIS" :key="e"
             @click="toggleReaction(e)"
-            :class="['h-9 px-3 rounded-full border text-sm inline-flex items-center gap-1.5 transition-colors',
-                     mine.has(e) ? 'bg-brand-600 border-brand-600 text-white' : 'border-surface-border dark:border-night-700 hover:bg-night-50 dark:hover:bg-night-800']">
-            <span>{{ e }}</span>
-            <span class="text-xs opacity-80">{{ counts[e] ?? '' }}</span>
+            :class="['h-10 px-3.5 rounded-full border text-sm inline-flex items-center gap-1.5 transition-all',
+                     mine.has(e)
+                       ? 'bg-brand-600 border-brand-600 text-white shadow-brand animate-springIn'
+                       : 'border-[var(--card-border-strong)] hover:border-brand-400 hover:bg-brand-500/6 dark:hover:bg-brand-400/10 hover:scale-105']">
+            <span class="text-base">{{ e }}</span>
+            <span class="text-xs font-semibold opacity-90 tabular-nums">{{ counts[e] ?? '' }}</span>
           </button>
-          <span v-if="friendsReacted" class="ml-1 text-xs text-night-500 dark:text-night-300">
+          <span v-if="friendsReacted" class="ml-1 text-xs font-medium text-night-600 dark:text-night-200">
             {{ friendsReacted }} friend{{ friendsReacted === 1 ? '' : 's' }} reacted
           </span>
         </div>

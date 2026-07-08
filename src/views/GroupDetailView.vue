@@ -79,41 +79,54 @@ async function deleteGroup() {
 
 <template>
   <div class="max-w-5xl mx-auto space-y-4">
-    <RouterLink to="/groups" class="text-xs text-night-500 hover:text-brand-600 inline-flex items-center gap-1"><Icon name="chevron_left" :size="14" /> Groups</RouterLink>
+    <RouterLink to="/groups" class="text-xs font-medium text-night-600 dark:text-night-200 hover:text-brand-600 dark:hover:text-brand-300 inline-flex items-center gap-1 transition-colors"><Icon name="chevron_left" :size="14" /> Groups</RouterLink>
     <LoadError v-if="error" :message="error" @retry="load" />
     <LoadingSpinner v-else-if="groups.detailLoading" label="Loading group…" />
     <template v-else-if="groups.detail">
-      <div class="flex items-start gap-3">
-        <div class="h-14 w-14 rounded-xl bg-brand-600 text-white grid place-items-center font-semibold text-2xl shrink-0">
-          {{ groups.detail.group.name.slice(0,1).toUpperCase() }}
-        </div>
-        <div class="min-w-0">
-          <h2 class="t-page !text-2xl">{{ groups.detail.group.name }}</h2>
-          <p class="mt-0.5 text-sm text-night-500 dark:text-night-300 max-w-2xl">{{ groups.detail.group.description || 'No description' }}</p>
-          <div class="mt-2.5 flex items-center gap-2">
-            <div class="flex -space-x-2">
-              <Avatar v-for="m in groups.detail.members.slice(0, 6)" :key="m.user_id"
-                      :name="m.profile?.full_name" size="sm"
-                      class="ring-2 ring-white dark:ring-night-800" :title="m.profile?.full_name ?? ''" />
+      <!-- Hero header — brand-forward, avatar stack front and centre -->
+      <div class="hero-surface p-5 sm:p-6">
+        <div class="flex items-start gap-4">
+          <div class="h-16 w-16 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 text-white grid place-items-center font-bold text-2xl shrink-0 shadow-[0_14px_30px_-10px_rgba(91,123,212,0.55)]">
+            {{ groups.detail.group.name.slice(0,1).toUpperCase() }}
+          </div>
+          <div class="min-w-0 flex-1">
+            <h2 class="t-page">{{ groups.detail.group.name }}</h2>
+            <p class="mt-1 text-sm text-night-600 dark:text-night-100 max-w-2xl">{{ groups.detail.group.description || 'No description' }}</p>
+            <div class="mt-3 flex items-center gap-3 flex-wrap">
+              <div class="flex -space-x-2">
+                <Avatar v-for="(m, i) in groups.detail.members.slice(0, 6)" :key="m.user_id"
+                        :name="m.profile?.full_name" size="sm"
+                        class="ring-2 ring-white dark:ring-[var(--surface-secondary)]"
+                        :style="{ zIndex: 10 - i }"
+                        :title="m.profile?.full_name ?? ''" />
+                <span v-if="groups.detail.members.length > 6"
+                      class="grid h-8 w-8 place-items-center rounded-full ring-2 ring-white dark:ring-[var(--surface-secondary)] bg-brand-500/15 text-brand-700 dark:text-brand-200 text-[11px] font-bold">
+                  +{{ groups.detail.members.length - 6 }}
+                </span>
+              </div>
+              <span class="chip-brand">
+                <Icon name="groups" :size="12" />
+                {{ groups.detail.members.length }} member{{ groups.detail.members.length === 1 ? '' : 's' }}
+              </span>
             </div>
-            <span class="text-xs text-night-500 dark:text-night-300">
-              {{ groups.detail.members.length }} member{{ groups.detail.members.length === 1 ? '' : 's' }}
-            </span>
           </div>
         </div>
       </div>
 
       <div class="grid gap-4 lg:grid-cols-3">
         <Card v-if="activity.length" class="lg:col-span-3">
-          <h4 class="font-semibold mb-3">What's been happening</h4>
+          <h4 class="t-card mb-3 flex items-center gap-2">
+            <span class="inline-block h-1.5 w-1.5 rounded-full bg-brand-500 animate-livePulse" />
+            What's been happening
+          </h4>
           <ul class="space-y-1">
             <li v-for="(a, i) in activity" :key="i">
               <component :is="a.to === '#members' ? 'div' : 'router-link'" :to="a.to === '#members' ? undefined : a.to"
-                         class="-mx-2 flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm transition-colors"
-                         :class="a.to !== '#members' && 'hover:bg-black/5 dark:hover:bg-white/5'">
-                <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
-                <span class="min-w-0 flex-1 truncate text-night-700 dark:text-night-100">{{ a.text }}</span>
-                <span class="shrink-0 text-[11px] text-night-400">{{ fmtDate(a.when, { month:'short', day:'numeric' }) }}</span>
+                         class="-mx-2 flex items-center gap-2.5 rounded-xl px-2 py-2 text-sm transition-colors"
+                         :class="a.to !== '#members' && 'hover:bg-brand-500/6 dark:hover:bg-brand-400/10'">
+                <span class="h-2 w-2 shrink-0 rounded-full bg-brand-500 shadow-[0_0_6px_rgba(91,123,212,0.6)]" />
+                <span class="min-w-0 flex-1 truncate text-night-800 dark:text-white">{{ a.text }}</span>
+                <span class="shrink-0 text-[11px] font-medium text-night-500 dark:text-night-300">{{ fmtDate(a.when, { month:'short', day:'numeric' }) }}</span>
               </component>
             </li>
           </ul>
@@ -127,11 +140,11 @@ async function deleteGroup() {
           </EmptyState>
           <ul v-else class="space-y-2">
             <li v-for="p in sharedProjects" :key="p.id">
-              <RouterLink :to="`/projects/${p.id}`" class="flex items-center gap-3 rounded-xl border border-surface-border dark:border-night-700 p-3 hover:bg-night-50 dark:hover:bg-night-800">
-                <span class="h-9 w-9 rounded-xl grid place-items-center text-white font-semibold" :style="{ background: p.color ?? '#3a68ff' }">{{ p.name.slice(0,1).toUpperCase() }}</span>
+              <RouterLink :to="`/projects/${p.id}`" class="group flex items-center gap-3 rounded-xl border border-[var(--card-border)] p-3 transition-all hover:border-brand-500/40 hover:bg-brand-500/[0.04] dark:hover:bg-brand-400/[0.08] hover:-translate-y-0.5">
+                <span class="h-10 w-10 rounded-xl grid place-items-center text-white font-bold shrink-0 shadow-[0_8px_16px_-6px_rgba(15,20,40,0.35)]" :style="{ background: p.color ?? '#5B7BD4' }">{{ p.name.slice(0,1).toUpperCase() }}</span>
                 <div class="flex-1 min-w-0">
-                  <div class="font-medium truncate">{{ p.name }}</div>
-                  <div class="text-xs text-night-500 truncate">{{ p.progress }}% · {{ p.status.replace('_',' ') }}</div>
+                  <div class="font-semibold truncate text-night-900 dark:text-white group-hover:text-brand-700 dark:group-hover:text-brand-300">{{ p.name }}</div>
+                  <div class="text-xs text-night-600 dark:text-night-200 truncate mt-0.5"><span class="tabular-nums font-semibold">{{ p.progress }}%</span> · {{ p.status.replace('_',' ') }}</div>
                 </div>
               </RouterLink>
             </li>
@@ -158,8 +171,9 @@ async function deleteGroup() {
                       body="Set a memory's group to this one when creating it." />
           <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
             <RouterLink v-for="m in sharedMemories.slice(0,10)" :key="m.id" :to="`/memories/${m.id}`"
-                        class="aspect-square rounded-xl overflow-hidden bg-night-100 dark:bg-night-800 relative">
-              <img v-if="mem.thumbnailUrl(m.id)" :src="mem.thumbnailUrl(m.id)!" loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover" alt="" />
+                        class="aspect-square rounded-xl overflow-hidden bg-[var(--card-bg-soft)] relative group ring-1 ring-[var(--card-border)] transition-transform hover:scale-[1.03] hover:ring-brand-500/40">
+              <img v-if="mem.thumbnailUrl(m.id)" :src="mem.thumbnailUrl(m.id)!" loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" alt="" />
+              <span class="absolute inset-0 bg-gradient-to-t from-brand-900/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             </RouterLink>
           </div>
         </Card>

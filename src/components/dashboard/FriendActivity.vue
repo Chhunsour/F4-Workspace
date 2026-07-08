@@ -72,16 +72,21 @@ const items = computed<Item[]>(() => {
 
 <template>
   <section v-if="items.length">
-    <h3 class="t-section mb-3">Friend life</h3>
+    <div class="mb-3 flex items-center justify-between">
+      <h3 class="t-section flex items-center gap-2">
+        Friend life
+        <span class="inline-block h-1.5 w-1.5 rounded-full bg-blush-500 animate-livePulse" />
+      </h3>
+    </div>
     <ul class="space-y-1">
       <li v-for="(it, i) in items" :key="i">
         <RouterLink :to="it.to"
-                    class="-mx-2 flex items-start gap-2.5 rounded-lg px-2 py-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-          <span class="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-brand-500/12 text-brand-600 dark:text-brand-300">
-            <Icon :name="it.icon" :size="13" />
+                    class="group -mx-2 flex items-start gap-2.5 rounded-xl px-2 py-2 transition-colors hover:bg-brand-500/6 dark:hover:bg-brand-400/10">
+          <span class="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-brand-500/12 text-brand-600 dark:bg-brand-400/20 dark:text-brand-200 group-hover:scale-105 transition-transform">
+            <Icon :name="it.icon" :size="14" />
           </span>
-          <span class="min-w-0 flex-1 text-sm leading-snug text-night-700 dark:text-night-100">{{ it.text }}</span>
-          <span class="shrink-0 text-[11px] text-night-400">{{ fmtDate(it.when, { month:'short', day:'numeric' }) }}</span>
+          <span class="min-w-0 flex-1 text-sm leading-snug text-night-800 dark:text-night-100 group-hover:text-night-900 dark:group-hover:text-white transition-colors">{{ it.text }}</span>
+          <span class="shrink-0 text-[11px] font-medium text-night-500 dark:text-night-300">{{ fmtDate(it.when, { month:'short', day:'numeric' }) }}</span>
         </RouterLink>
       </li>
     </ul>

@@ -81,32 +81,34 @@ const totalStudied = computed(() =>
     </div>
 
     <template v-else-if="subject">
-      <!-- header -->
-      <div class="flex flex-wrap items-start justify-between gap-3">
-        <div class="flex items-start gap-3">
-          <span class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-lg font-semibold text-white"
-                :style="{ background: subject.color }">
-            {{ (subject.code ?? subject.name).slice(0, 2).toUpperCase() }}
-          </span>
-          <div>
-            <h2 class="text-2xl font-semibold tracking-tight">{{ subject.name }}</h2>
-            <p class="text-sm text-night-500 dark:text-night-300">
-              <span v-if="subject.code">{{ subject.code }} · </span>
-              <span v-if="subject.lecturer">{{ subject.lecturer }} · </span>
-              {{ classes.length }} class{{ classes.length === 1 ? '' : 'es' }} a week
-            </p>
+      <!-- header — subject-tinted hero -->
+      <div class="subject-block p-5 sm:p-6" :style="{ '--subject': subject.color }">
+        <div class="flex flex-wrap items-start justify-between gap-3 pl-2.5">
+          <div class="flex items-start gap-3">
+            <span class="grid h-14 w-14 shrink-0 place-items-center rounded-2xl text-lg font-bold text-white shadow-[0_12px_28px_-10px_rgba(15,20,40,0.4)]"
+                  :style="{ background: subject.color }">
+              {{ (subject.code ?? subject.name).slice(0, 2).toUpperCase() }}
+            </span>
+            <div>
+              <h2 class="t-page">{{ subject.name }}</h2>
+              <p class="mt-1 text-sm text-night-700 dark:text-night-100 font-medium">
+                <span v-if="subject.code">{{ subject.code }} · </span>
+                <span v-if="subject.lecturer">{{ subject.lecturer }} · </span>
+                {{ classes.length }} class{{ classes.length === 1 ? '' : 'es' }} a week
+              </p>
+            </div>
           </div>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <Button size="sm" @click="$router.push(`/study?subject=${subject.id}`)">
-            <Icon name="play" :size="14" /> Start study
-          </Button>
-          <Button size="sm" variant="secondary" @click="$router.push(`/assignments?new=1&subject=${subject.id}`)">
-            <Icon name="plus" :size="14" /> Add task
-          </Button>
-          <Button size="sm" variant="secondary" @click="$router.push(`/notes?new=1&subject=${subject.id}`)">
-            <Icon name="notes" :size="14" /> Add note
-          </Button>
+          <div class="flex flex-wrap gap-2">
+            <Button size="sm" @click="$router.push(`/study?subject=${subject.id}`)">
+              <Icon name="play" :size="14" /> Start study
+            </Button>
+            <Button size="sm" variant="secondary" @click="$router.push(`/assignments?new=1&subject=${subject.id}`)">
+              <Icon name="plus" :size="14" /> Add task
+            </Button>
+            <Button size="sm" variant="secondary" @click="$router.push(`/notes?new=1&subject=${subject.id}`)">
+              <Icon name="notes" :size="14" /> Add note
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -114,11 +116,11 @@ const totalStudied = computed(() =>
       <div v-if="nextClass" class="card flex items-center gap-3 px-4 py-3">
         <span class="h-8 w-1 shrink-0 rounded-full" :style="{ background: subject.color }" />
         <div class="min-w-0 flex-1 text-sm">
-          <span class="t-section mr-2">Next class</span>
-          <span class="font-medium">{{ WEEKDAY_LONG[nextClass.c.weekday] }} {{ fmtTime(nextClass.c.start_time) }}</span>
-          <span v-if="nextClass.c.room" class="text-night-500 dark:text-night-300"> · Room {{ nextClass.c.room }}</span>
+          <span class="t-eyebrow mr-2">Next class</span>
+          <span class="font-semibold text-night-900 dark:text-white">{{ WEEKDAY_LONG[nextClass.c.weekday] }} {{ fmtTime(nextClass.c.start_time) }}</span>
+          <span v-if="nextClass.c.room" class="text-night-600 dark:text-night-200"> · Room {{ nextClass.c.room }}</span>
         </div>
-        <span class="shrink-0 rounded-full bg-accent-100 px-2.5 py-1 text-xs font-semibold text-accent-700 dark:bg-accent-300/15 dark:text-accent-300">
+        <span class="chip-brand shrink-0">
           in {{ humanCountdown(nextClass.start, now) }}
         </span>
       </div>
@@ -128,7 +130,7 @@ const totalStudied = computed(() =>
         <RouterLink v-for="p in subjectProjects" :key="p.id" :to="`/projects/${p.id}`"
                     class="tile tile-hover flex items-center gap-2.5 px-3 py-2 text-sm">
           <span class="grid h-7 w-7 place-items-center rounded-lg text-xs font-semibold text-white"
-                :style="{ background: p.color ?? '#3a68ff' }">{{ p.name.slice(0,1).toUpperCase() }}</span>
+                :style="{ background: p.color ?? '#5B7BD4' }">{{ p.name.slice(0,1).toUpperCase() }}</span>
           <span class="font-medium">{{ p.name }}</span>
           <span class="text-xs text-night-500 dark:text-night-300">{{ p.progress }}%</span>
         </RouterLink>

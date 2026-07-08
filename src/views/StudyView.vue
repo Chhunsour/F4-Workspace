@@ -50,32 +50,36 @@ const bySubject = computed(() => {
       <Card>
         <div class="flex items-center justify-between mb-3">
           <h3 class="t-card">{{ t('This week') }}</h3>
-          <span class="chip"><Icon name="fire" :size="12" /> {{ t('{count} day streak', { count: study.streakDays }) }}</span>
+          <span class="chip-warn !text-tangerine-700 dark:!text-tangerine-300"><Icon name="fire" :size="12" /> {{ t('{count} day streak', { count: study.streakDays }) }}</span>
         </div>
         <div class="grid grid-cols-2 gap-3">
-          <div class="tile p-3">
+          <div class="compact p-3">
             <div class="t-section">{{ t('Today') }}</div>
-            <div class="text-lg font-semibold tabular-nums">{{ secondsToClock(study.totalToday) }}</div>
+            <div class="text-xl font-bold tabular-nums text-night-900 dark:text-white mt-0.5">{{ secondsToClock(study.totalToday) }}</div>
           </div>
-          <div class="tile p-3">
+          <div class="compact p-3">
             <div class="t-section">{{ t('Week') }}</div>
-            <div class="text-lg font-semibold tabular-nums">{{ secondsToClock(study.totalThisWeek) }}</div>
+            <div class="text-xl font-bold tabular-nums text-brand-700 dark:text-brand-300 mt-0.5">{{ secondsToClock(study.totalThisWeek) }}</div>
           </div>
         </div>
-        <div class="mt-4 mb-1.5 text-xs text-night-500 dark:text-night-300 flex justify-between">
-          <span>{{ t('Goal') }} · {{ study.weeklyGoalMinutes }} {{ t('min') }}</span><span>{{ goalPct }}%</span>
+        <div class="mt-4 mb-1.5 text-xs flex justify-between">
+          <span class="t-section">{{ t('Goal') }} · {{ study.weeklyGoalMinutes }} {{ t('min') }}</span>
+          <span class="tabular-nums font-bold text-night-900 dark:text-white">{{ goalPct }}%</span>
         </div>
-        <ProgressBar :value="goalPct" />
+        <ProgressBar :value="goalPct" glow />
 
-        <div v-if="bySubject.length" class="mt-4 border-t border-surface-border dark:border-night-700 pt-3">
+        <div v-if="bySubject.length" class="mt-4 border-t border-[var(--card-border)] pt-3">
           <p class="t-section mb-2">{{ t('By subject') }}</p>
-          <ul class="space-y-2">
+          <ul class="space-y-2.5">
             <li v-for="row in bySubject" :key="row.subject?.id ?? 'general'">
               <div class="flex items-center justify-between text-xs mb-1">
-                <span class="truncate font-medium">{{ row.subject?.name ?? t('General study') }}</span>
-                <span class="tabular-nums text-night-500 dark:text-night-300 shrink-0 ml-2">{{ secondsToClock(row.secs) }}</span>
+                <span class="truncate font-semibold text-night-800 dark:text-white flex items-center gap-1.5">
+                  <span class="inline-block h-2 w-2 rounded-full" :style="{ background: row.subject?.color ?? '#5B7BD4' }" />
+                  {{ row.subject?.name ?? t('General study') }}
+                </span>
+                <span class="tabular-nums text-night-600 dark:text-night-100 shrink-0 ml-2 font-medium">{{ secondsToClock(row.secs) }}</span>
               </div>
-              <ProgressBar :value="row.pct" height="h-1.5" :color="row.subject?.color ?? '#3a68ff'" />
+              <ProgressBar :value="row.pct" height="h-1.5" :color="row.subject?.color ?? '#5B7BD4'" />
             </li>
           </ul>
         </div>
@@ -88,16 +92,16 @@ const bySubject = computed(() => {
       <EmptyState v-else-if="completed.length === 0" icon="study" :title="t('No sessions yet')"
                   :body="t('Start a timer above — even 20 minutes counts.')" />
       <ul v-else class="space-y-2">
-        <li v-for="s in completed.slice(0,12)" :key="s.id" class="flex items-center gap-3 rounded-lg border border-surface-border dark:border-night-700 p-3">
-          <span class="h-2.5 w-2.5 rounded-full shrink-0" :style="{ background: subjects.byId(s.subject_id)?.color ?? '#3a68ff' }" />
+        <li v-for="s in completed.slice(0,12)" :key="s.id" class="flex items-center gap-3 rounded-xl border border-[var(--card-border)] p-3 transition-colors hover:border-brand-500/40 hover:bg-brand-500/[0.03] dark:hover:bg-brand-400/[0.06]">
+          <span class="h-2.5 w-2.5 rounded-full shrink-0" :style="{ background: subjects.byId(s.subject_id)?.color ?? '#5B7BD4' }" />
           <div class="flex-1 min-w-0">
-            <div class="text-sm font-medium truncate">
+            <div class="text-sm font-semibold truncate text-night-900 dark:text-white">
               {{ subjects.byId(s.subject_id)?.name ?? t('General study') }}
-              <span v-if="s.topic" class="text-night-500 dark:text-night-300 font-normal"> · {{ s.topic }}</span>
+              <span v-if="s.topic" class="text-night-600 dark:text-night-200 font-normal"> · {{ s.topic }}</span>
             </div>
-            <div class="text-xs text-night-500 dark:text-night-300">{{ fmtDate(s.started_at, { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }) }}</div>
+            <div class="text-xs text-night-500 dark:text-night-300 mt-0.5">{{ fmtDate(s.started_at, { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }) }}</div>
           </div>
-          <span class="chip tabular-nums">{{ secondsToClock(s.duration_seconds) }}</span>
+          <span class="chip-brand tabular-nums">{{ secondsToClock(s.duration_seconds) }}</span>
         </li>
       </ul>
     </Card>

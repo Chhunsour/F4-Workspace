@@ -31,12 +31,12 @@ onBeforeUnmount(() => {
       <div v-if="props.open"
            class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
            role="dialog" aria-modal="true">
-        <div class="absolute inset-0 bg-night-950/50 backdrop-blur-md" @click="close" />
+        <div class="absolute inset-0 bg-night-950/50 dark:bg-[rgba(24,25,28,0.72)] backdrop-blur-md" @click="close" />
         <div :class="['relative w-full', props.wide ? 'max-w-3xl' : 'max-w-lg',
                        'glass-panel !rounded-3xl shadow-pop',
-                       'bg-white/80 dark:bg-[rgba(20,24,33,0.8)]',
+                       'bg-white/80 dark:bg-[rgba(44,46,52,0.92)] dark:border-[var(--border-soft)]',
                        'animate-slideUp max-h-[90vh] overflow-y-auto']">
-          <header v-if="props.title || $slots.header" class="sticky top-0 z-10 flex items-center justify-between px-5 py-4 border-b border-[var(--glass-hair)] bg-white/60 dark:bg-white/[0.04] backdrop-blur-xl rounded-t-3xl">
+          <header v-if="props.title || $slots.header" class="sticky top-0 z-10 flex items-center justify-between px-5 py-4 border-b border-[var(--glass-hair)] bg-white/60 dark:bg-[rgba(38,40,45,0.88)] backdrop-blur-xl rounded-t-3xl">
             <slot name="header">
               <h3 class="t-card !text-lg">{{ props.title }}</h3>
             </slot>
@@ -47,7 +47,7 @@ onBeforeUnmount(() => {
           <div class="p-5">
             <slot />
           </div>
-          <footer v-if="$slots.footer" class="px-5 py-4 border-t border-[var(--glass-hair)] flex items-center justify-end gap-2">
+          <footer v-if="$slots.footer" class="px-5 py-4 border-t border-[var(--glass-hair)] dark:bg-[rgba(38,40,45,0.54)] flex items-center justify-end gap-2">
             <slot name="footer" />
           </footer>
         </div>

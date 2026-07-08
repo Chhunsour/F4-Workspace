@@ -33,7 +33,7 @@ function iconTone(kind: string) {
        aria-live="polite" role="status">
     <transition-group name="fade">
       <div v-for="i in t.items" :key="i.id"
-           :class="['glass-panel !rounded-2xl bg-white/80 dark:bg-[rgba(20,24,33,0.8)] px-4 py-3 pointer-events-auto', toneClasses(i.kind)]">
+           :class="['glass-panel !rounded-2xl bg-white/80 dark:bg-[rgba(44,46,52,0.92)] dark:border-[var(--border-soft)] px-4 py-3 pointer-events-auto', toneClasses(i.kind)]">
         <div class="flex items-start gap-3">
           <span :class="['h-6 w-6 rounded-lg flex items-center justify-center shrink-0', iconTone(i.kind)]"><Icon :name="iconName(i.kind)" :size="15" /></span>
           <div class="flex-1 min-w-0">

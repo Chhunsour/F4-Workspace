@@ -40,7 +40,7 @@ async function submit() {
     if (!result?.session) {
       sent.value = true
     } else {
-      toast.success(t('Welcome to Uni Life'))
+      toast.success(t('Welcome to Team F4'))
       router.replace('/')
     }
   } catch (e: any) {

@@ -2,6 +2,7 @@
 import { reactive, watch, computed } from 'vue'
 import Modal from '@/components/ui/Modal.vue'
 import Input from '@/components/ui/Input.vue'
+import DateField from '@/components/ui/DateField.vue'
 import Select from '@/components/ui/Select.vue'
 import Button from '@/components/ui/Button.vue'
 import { useScheduleStore } from '@/stores/schedule'
@@ -91,8 +92,8 @@ async function remove() {
       <Select v-model="form.subject_id" :options="subjectOptions" :label="t('Subject')" :placeholder="t('Pick a subject')" />
       <Select v-model="form.weekday as any" :options="dayOptions" :label="t('Day of week')" />
       <div class="grid grid-cols-2 gap-3">
-        <Input v-model="form.start_time" type="time" :label="t('Start')" required />
-        <Input v-model="form.end_time"   type="time" :label="t('End')"   required />
+        <DateField v-model="form.start_time" type="time" label="Start" required />
+        <DateField v-model="form.end_time"   type="time" label="End"   required />
       </div>
       <Input v-model="form.room" :label="t('Room')" placeholder="e.g. 401" />
       <Input v-model="form.notes" :label="t('Notes')" :placeholder="t('Optional')" />

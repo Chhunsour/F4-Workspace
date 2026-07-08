@@ -45,7 +45,31 @@ export interface ClassSchedule {
   start_time: string   // 'HH:MM:SS'
   end_time:   string
   room: string | null
+  teacher: string | null
   notes: string | null
+  created_at: Iso
+  updated_at: Iso
+}
+
+export type AcademicEventType = 'exam' | 'final_exam' | 'presentation'
+
+// One-time academic events (exams, finals, presentations). Weekly classes
+// live in ClassSchedule; these are dated and overlay onto the timetable.
+export interface AcademicEvent {
+  id: UUID
+  owner_id: UUID
+  type: AcademicEventType
+  title: string | null
+  subject_id: UUID | null
+  project_id: UUID | null
+  event_date: string          // 'YYYY-MM-DD'
+  start_time: string | null   // 'HH:MM:SS'
+  end_time:   string | null
+  room: string | null
+  seat: string | null
+  team_members: UUID[]
+  notes: string | null
+  reminder_at: Iso | null
   created_at: Iso
   updated_at: Iso
 }
@@ -222,6 +246,7 @@ export interface Database {
       profiles:        { Row: Profile;        Insert: Partial<Profile>       & { id: UUID };       Update: Partial<Profile>;       Relationships: Rel }
       subjects:        { Row: Subject;        Insert: Partial<Subject>       & { owner_id: UUID; name: string }; Update: Partial<Subject>;       Relationships: Rel }
       class_schedules: { Row: ClassSchedule;  Insert: Partial<ClassSchedule> & { owner_id: UUID; weekday: number; start_time: string; end_time: string }; Update: Partial<ClassSchedule>; Relationships: Rel }
+      academic_events: { Row: AcademicEvent;  Insert: Partial<AcademicEvent> & { owner_id: UUID; type: AcademicEventType; event_date: string }; Update: Partial<AcademicEvent>; Relationships: Rel }
       assignments:     { Row: Assignment;     Insert: Partial<Assignment>    & { owner_id: UUID; title: string }; Update: Partial<Assignment>;    Relationships: Rel }
       projects:        { Row: Project;        Insert: Partial<Project>       & { owner_id: UUID; name: string }; Update: Partial<Project>;       Relationships: Rel }
       project_members: { Row: ProjectMember;  Insert: Partial<ProjectMember> & { project_id: UUID; user_id: UUID }; Update: Partial<ProjectMember>; Relationships: Rel }

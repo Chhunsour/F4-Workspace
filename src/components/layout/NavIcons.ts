@@ -2,6 +2,7 @@
 
 export const ICONS: Record<string, string> = {
   dashboard:  '<path d="M4 5a2 2 0 0 1 2-2h4v8H4V5zm0 10a2 2 0 0 0 2 2h4v-6H4v4zm10 2a2 2 0 0 0 2-2v-4h-6v6h4zm2-14h-4v6h6V5a2 2 0 0 0-2-2z"/>',
+  home:       '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM9 22V12h6v10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
   schedule:   '<path d="M7 3v2M17 3v2M4 8h16M5 6h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2zM8 13h3v3H8v-3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
   assignments:'<path d="M8 3h8l2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5l2-2zM9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
   projects:   '<path d="M3 7h6l2 2h10v10a2 2 0 0 1-2 2H3V7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>',
@@ -11,6 +12,7 @@ export const ICONS: Record<string, string> = {
   memories:   '<path d="M4 7a2 2 0 0 1 2-2h3l2-2h2l2 2h3a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7zm8 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" fill="none" stroke="currentColor" stroke-width="1.6"/>',
   groups:     '<path d="M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm8 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 20c0-3 3-5 6-5s6 2 6 5m4 0c0-2.5-2-4-4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
   profile:    '<path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-8 9c0-4 4-6 8-6s8 2 8 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+  team:       '<path d="M12 11.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM5.5 12a2.2 2.2 0 1 0 0-4.4M18.5 12a2.2 2.2 0 1 0 0-4.4M6 20c0-3 2.7-4.8 6-4.8s6 1.8 6 4.8M2 19.5c0-2 1.3-3.4 3.3-3.7M22 19.5c0-2-1.3-3.4-3.3-3.7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
   settings:   '<path d="M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm9 4l-2.1.7-.7 1.7 1 2-1.7 1.7-2-1-1.7.7-.7 2.1h-2.4l-.7-2.1-1.7-.7-2 1L4 15.7l1-2-.7-1.7L2.2 12l-.1-.4 2.1-.7.7-1.7-1-2L5.7 5.6l2 1 1.7-.7L10.1 3.8h2.4l.7 2.1 1.7.7 2-1L18.5 7l-1 2 .7 1.7 2.1.7z" fill="none" stroke="currentColor" stroke-width="1.4"/>',
   more:       '<path d="M6 12h.01M12 12h.01M18 12h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>',
   bell:       '<path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h11zm-3 3a2 2 0 0 1-4 0" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
@@ -37,4 +39,11 @@ export const ICONS: Record<string, string> = {
   close:      '<path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
   info:       '<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
   warning:    '<path d="M12 4l9 15H3l9-15z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10v4M12 17h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+
+  // Subject glyphs — matched to the same 24-grid, 1.6 stroke style.
+  code:       '<path d="M9 8l-4 4 4 4M15 8l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>',
+  database:   '<path d="M12 3c4.4 0 8 1.3 8 3s-3.6 3-8 3-8-1.3-8-3 3.6-3 8-3zM4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>',
+  network:    '<circle cx="12" cy="5" r="2.3" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="5" cy="18" r="2.3" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="19" cy="18" r="2.3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 6.8 6 16M13 6.8 18 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+  web:        '<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3 12h18M12 3c2.7 2.5 2.7 15.5 0 18M12 3c-2.7 2.5-2.7 15.5 0 18" fill="none" stroke="currentColor" stroke-width="1.6"/>',
+  terminal:   '<rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7 9l3 3-3 3M13 15h4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
 }

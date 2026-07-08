@@ -2,6 +2,7 @@
 import { reactive, watch, computed } from 'vue'
 import Modal from '@/components/ui/Modal.vue'
 import Input from '@/components/ui/Input.vue'
+import DateField from '@/components/ui/DateField.vue'
 import Textarea from '@/components/ui/Textarea.vue'
 import Select from '@/components/ui/Select.vue'
 import Button from '@/components/ui/Button.vue'
@@ -90,7 +91,7 @@ async function remove() {
           { value: 'todo', label: 'To Do' },{ value: 'in_progress', label: 'Doing' },
           { value: 'completed', label: 'Done' },
         ]" />
-        <Input v-model="form.due_date" type="date" label="Due date" />
+        <DateField v-model="form.due_date" type="date" label="Due date" />
         <Select v-model="form.assignee_id" label="Assignee" :options="memberOptions" placeholder="Unassigned" />
       </div>
       <div>

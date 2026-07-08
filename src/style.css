@@ -1,45 +1,107 @@
-@import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cal+Sans&family=Kantumruy+Pro:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ==========================================================================
+   Typography families — three-tier system.
+   Google Sans is proprietary and not shipped here, so its stack falls back
+   to Inter → system-ui for anyone without it installed. Cal Sans is loaded
+   from Google Fonts (SIL OFL). Futura is a system font on macOS/iOS with
+   Century Gothic / Avenir Next / system-ui fallbacks for other platforms.
+   Khmer (html.lang-km) always uses Kantumruy Pro — see rules below.
+   ========================================================================== */
+:root {
+  --font-ui:      "Google Sans", "Google Sans Flex", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Cal Sans", "Google Sans", "Google Sans Flex", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-brand:   "Futura", "Futura PT", "Century Gothic", "Avenir Next", "Trebuchet MS", ui-sans-serif, sans-serif;
+  --font-khmer:   "Kantumruy Pro", sans-serif;
+}
+
+/* ==========================================================================
+   Team F4 design tokens
+   Primary identity: #5B7BD4 (brand-600). The whole system should feel
+   like it belongs to one brand — brand color on active nav, primary CTAs,
+   focus, links, progress, selection, notifications, timer, social actions.
+   Surfaces are varied on purpose: hero / compact / interactive / media /
+   floating-glass. Not every card is the same rounded white rectangle.
+   ========================================================================== */
+
 :root {
   color-scheme: light;
-  /* Glass surface variables — tuned per theme, consumed by the .glass-* classes. */
+  /* Brand tokens re-used as CSS variables so canvas backgrounds and
+     glow effects don't drift from Tailwind. */
+  --brand: 91 123 212;              /* rgb triplet, so we can /alpha it */
+  --brand-strong: 74 99 180;
+
+  /* Glass surface variables — kept for navigation chrome only. */
   --glass-bg: rgba(255, 255, 255, 0.62);
   --glass-bg-strong: rgba(255, 255, 255, 0.78);
   --glass-border: rgba(255, 255, 255, 0.7);
   --glass-hair: rgba(17, 24, 39, 0.08);
   --panel-bg: rgba(246, 247, 249, 0.55);
+
+  /* Solid card surfaces — the new default (not glass everywhere). */
+  --card-bg: #ffffff;
+  --card-bg-soft: #fbfbfd;
+  --card-border: rgba(15, 20, 40, 0.06);
+  --card-border-strong: rgba(15, 20, 40, 0.10);
+
+  /* Ambient brand tint for hero + section backgrounds. */
+  --brand-tint: rgba(91, 123, 212, 0.06);
+  --brand-tint-strong: rgba(91, 123, 212, 0.12);
+
+  --solid-surface: rgba(255, 255, 255, 0.92);
 }
 html.dark {
   color-scheme: dark;
-  --glass-bg: rgba(255, 255, 255, 0.065);
-  --glass-bg-strong: rgba(255, 255, 255, 0.10);
-  --glass-border: rgba(255, 255, 255, 0.11);
+  --glass-bg: rgba(38, 40, 45, 0.78);
+  --glass-bg-strong: rgba(44, 46, 52, 0.88);
+  --glass-border: rgba(255, 255, 255, 0.08);
   --glass-hair: rgba(255, 255, 255, 0.08);
-  --panel-bg: rgba(20, 24, 33, 0.58);
-  --solid-surface: rgba(26, 30, 40, 0.92);
-}
-:root { --solid-surface: rgba(255, 255, 255, 0.92); }
+  --panel-bg: rgba(32, 33, 37, 0.88);
+  --solid-surface: rgba(38, 40, 45, 0.96);
 
-html, body, #app {
-  height: 100%;
+  --app-bg: #18191c;
+  --surface-main: #202125;
+  --surface-secondary: #26282d;
+  --surface-elevated: #2c2e34;
+  --surface-hover: #32353c;
+  --border-soft: rgba(255, 255, 255, 0.08);
+  --border-strong: #3a3d45;
+  --inner-highlight: rgba(255, 255, 255, 0.05);
+  --text-primary: #f5f6f8;
+  --text-secondary: #c5c8d0;
+  --text-muted: #8f95a3;
+  --text-subtle: #747b89;
+  --text-disabled: #555b67;
+
+  --card-bg: #26282d;
+  --card-bg-soft: #202125;
+  --card-border: rgba(255, 255, 255, 0.08);
+  --card-border-strong: #3a3d45;
+
+  --brand-tint: rgba(91, 123, 212, 0.10);
+  --brand-tint-strong: rgba(91, 123, 212, 0.18);
 }
+
+html, body, #app { height: 100%; }
 
 body {
-  @apply text-night-900 antialiased font-sans;
+  @apply text-night-900 antialiased;
+  font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   letter-spacing: -0.011em;
-  /* Ambient light-mode canvas the frosted panels refract over. */
-  background-color: #eceef2;
+  /* Ambient light canvas — brand at 12% (up from 13% but more focused),
+     warm yellow highlight, second brand pool at the bottom. */
+  background-color: #f4f5f8;
   background-image:
-    radial-gradient(60rem 60rem at 12% -10%, rgba(58, 104, 255, 0.10), transparent 60%),
-    radial-gradient(50rem 50rem at 100% 0%, rgba(255, 202, 71, 0.10), transparent 55%),
-    radial-gradient(70rem 70rem at 50% 120%, rgba(58, 104, 255, 0.06), transparent 60%);
+    radial-gradient(50rem 40rem at 8% -12%, rgba(91, 123, 212, 0.15), transparent 60%),
+    radial-gradient(38rem 38rem at 100% -2%, rgba(255, 202, 71, 0.09), transparent 55%),
+    radial-gradient(60rem 60rem at 50% 110%, rgba(91, 123, 212, 0.08), transparent 60%);
   background-attachment: fixed;
 }
 html.lang-km body {
@@ -55,15 +117,15 @@ html.lang-km textarea {
   line-height: 1.55;
 }
 html.dark body {
-  @apply text-night-50;
-  background-color: #0b0e15;
+  color: var(--text-primary);
+  background-color: var(--app-bg);
   background-image:
-    radial-gradient(60rem 60rem at 10% -10%, rgba(58, 104, 255, 0.16), transparent 60%),
-    radial-gradient(52rem 52rem at 100% 0%, rgba(255, 182, 31, 0.08), transparent 55%),
-    radial-gradient(70rem 70rem at 50% 120%, rgba(40, 60, 120, 0.20), transparent 60%);
+    radial-gradient(46rem 38rem at 8% -14%, rgba(91, 123, 212, 0.13), transparent 62%),
+    radial-gradient(34rem 34rem at 100% 2%, rgba(255, 255, 255, 0.035), transparent 58%),
+    radial-gradient(58rem 52rem at 50% 112%, rgba(91, 123, 212, 0.08), transparent 64%);
 }
 
-/* Focus ring — keyboard only */
+/* ---------- Focus ring — keyboard only, brand-tinted ---------- */
 :focus-visible {
   @apply outline-none ring-2 ring-brand-500/70 ring-offset-2;
   --tw-ring-offset-color: transparent;
@@ -73,13 +135,14 @@ html.dark :focus-visible {
 }
 
 /* Scrollbars */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(120,130,160,0.28) transparent;
-}
+* { scrollbar-width: thin; scrollbar-color: rgba(120,130,160,0.28) transparent; }
 *::-webkit-scrollbar { width: 10px; height: 10px; }
 *::-webkit-scrollbar-thumb { background: rgba(120,130,160,0.28); border-radius: 9999px; border: 2px solid transparent; background-clip: padding-box; }
 *::-webkit-scrollbar-thumb:hover { background: rgba(120,130,160,0.45); background-clip: padding-box; }
+html.dark * { scrollbar-color: #3a3d45 #202125; }
+html.dark *::-webkit-scrollbar-track { background: #202125; }
+html.dark *::-webkit-scrollbar-thumb { background: #3a3d45; }
+html.dark *::-webkit-scrollbar-thumb:hover { background: rgba(91, 123, 212, 0.55); }
 
 /* Page transitions */
 .fade-enter-active, .fade-leave-active { transition: opacity 200ms ease, transform 260ms cubic-bezier(0.22,1,0.36,1), filter 260ms ease; }
@@ -87,18 +150,123 @@ html.dark :focus-visible {
 .fade-leave-to   { opacity: 0; transform: translateY(-4px); filter: blur(2px); }
 
 @layer components {
-  /* ---------- Typography scale ---------- */
-  .t-page   { @apply text-2xl sm:text-[28px] font-semibold tracking-tight text-night-900 dark:text-white; }
-  .t-section{ @apply text-[11px] font-semibold uppercase tracking-[0.09em] text-night-400 dark:text-night-300; }
-  .t-card   { @apply text-[15px] font-semibold text-night-900 dark:text-white; }
-  .t-body   { @apply text-sm text-night-700 dark:text-night-100; }
-  .t-meta   { @apply text-xs text-night-500 dark:text-night-300; }
-  .t-label  { @apply text-[13px] font-medium text-night-700 dark:text-night-100; }
+  /* ==========================================================================
+     Typography — three-tier system:
+       display (Cal Sans) — hero/page titles, greetings, section titles
+       ui (Google Sans → Inter fallback) — body, buttons, forms, metadata
+       brand (Futura → Century Gothic fallback) — small uppercase labels,
+         eyebrows, category tags (EXAM, FINAL EXAM, PRESENTATION)
+     Khmer overrides below force everything back to Kantumruy Pro on
+     .lang-km, so Khmer text never sees any of the three Latin faces.
+     ========================================================================== */
+  .t-page   { font-family: var(--font-display); @apply text-[26px] sm:text-[32px] font-bold tracking-[-0.02em] text-night-900 dark:text-[var(--text-primary)] leading-[1.12]; }
+  .t-h2     { font-family: var(--font-display); @apply text-lg font-semibold tracking-tight text-night-900 dark:text-[var(--text-primary)] leading-snug; }
+  .t-section{ font-family: var(--font-brand);   @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-night-500 dark:text-[var(--text-muted)]; }
+  .t-eyebrow{ font-family: var(--font-brand);   @apply text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-600 dark:text-brand-400; }
+  .t-card   { @apply text-[15px] font-semibold text-night-900 dark:text-[var(--text-primary)] leading-snug; }
+  .t-body   { @apply text-sm text-night-700 dark:text-[var(--text-secondary)] leading-relaxed; }
+  .t-meta   { @apply text-xs text-night-500 dark:text-[var(--text-muted)] leading-normal; }
+  .t-label  { font-family: var(--font-brand);   @apply text-[11px] font-semibold uppercase tracking-[0.12em] text-night-700 dark:text-[var(--text-secondary)]; }
+  .t-caption{ font-family: var(--font-brand);   @apply text-[10.5px] font-semibold uppercase tracking-[0.14em] text-night-500 dark:text-[var(--text-subtle)]; }
+  .t-num    { @apply tabular-nums; font-feature-settings: 'tnum'; }
 
-  /* ---------- Liquid glass surfaces ----------
-     .glass-panel = large translucent chrome (nav panel, content shell)
-     .glass-card / .card = content cards
-     .glass-rail = the dark icon rail (always dark, both themes)               */
+  /* Explicit family utilities for special use cases (wordmarks, badges). */
+  .font-display { font-family: var(--font-display); }
+  .font-brand   { font-family: var(--font-brand); letter-spacing: 0.02em; }
+  .font-ui      { font-family: var(--font-ui); }
+
+  /* ==========================================================================
+     Surfaces — five distinct types on purpose.
+     ========================================================================== */
+
+  /* 1. Card — the new default. Solid, border-first, no glass by default.
+        Sits on the ambient canvas without competing with it. */
+  .card {
+    background: var(--card-bg);
+    @apply border rounded-2xl shadow-card transition-[box-shadow,transform,border-color,background-color] duration-200;
+    border-color: var(--card-border);
+  }
+  html.dark .card {
+    box-shadow:
+      0 16px 42px -30px rgba(0, 0, 0, 0.75),
+      inset 0 1px 0 0 var(--inner-highlight);
+  }
+  .card-hover { @apply hover:-translate-y-0.5 hover:shadow-cardH; }
+  .card-hover:hover { border-color: var(--card-border-strong); }
+  html.dark .card-hover:hover {
+    background: var(--surface-elevated);
+    border-color: var(--border-strong);
+    box-shadow: 0 22px 56px -32px rgba(0, 0, 0, 0.82), inset 0 1px 0 0 var(--inner-highlight);
+  }
+
+  /* 2. Hero surface — for the loudest content (Next Class, Focus Start,
+        Group header). Brand-tinted background + soft brand glow inset
+        + subtle top brand accent line. Feels like the brand living in a card. */
+  .hero-surface {
+    position: relative;
+    @apply rounded-3xl border overflow-hidden;
+    background:
+      linear-gradient(180deg, var(--brand-tint) 0%, transparent 55%),
+      var(--card-bg);
+    border-color: rgba(91, 123, 212, 0.18);
+    box-shadow:
+      0 24px 60px -28px rgba(91, 123, 212, 0.35),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.55);
+  }
+  html.dark .hero-surface {
+    background:
+      linear-gradient(180deg, rgba(91,123,212,0.10) 0%, transparent 58%),
+      var(--surface-secondary);
+    border-color: rgba(91, 123, 212, 0.28);
+    box-shadow:
+      0 30px 80px -34px rgba(0, 0, 0, 0.8),
+      0 18px 60px -40px rgba(91, 123, 212, 0.55),
+      inset 0 1px 0 0 var(--inner-highlight);
+  }
+  /* Optional accent bar along the top of a hero surface. */
+  .hero-surface::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(90deg, rgb(var(--brand)) 0%, rgba(255, 202, 71, 0.8) 100%);
+    opacity: 0.85;
+  }
+
+  /* 3. Compact surface — small info tile inside larger cards. */
+  .compact {
+    background: var(--card-bg-soft);
+    @apply border rounded-xl transition-colors duration-200;
+    border-color: var(--card-border);
+  }
+  html.dark .compact { background: var(--surface-main); border-color: var(--border-soft); }
+
+  /* 4. Interactive row — the shape used for task rows, activity items,
+        comment previews. Reads compact; hover lifts a soft brand tint. */
+  .row {
+    @apply relative flex items-center gap-3 rounded-xl px-3 py-2.5 border transition-[background-color,border-color] duration-150;
+    background: transparent;
+    border-color: transparent;
+  }
+  .row-hover:hover {
+    background: var(--brand-tint);
+    border-color: rgba(91, 123, 212, 0.16);
+  }
+  .row-active {
+    background: var(--brand-tint-strong);
+    border-color: rgba(91, 123, 212, 0.28);
+  }
+
+  /* 5. Media surface — photo-first, edge-to-edge image with subtle border. */
+  .media {
+    @apply relative overflow-hidden rounded-2xl border;
+    border-color: var(--card-border);
+    background: var(--card-bg-soft);
+  }
+
+  /* ==========================================================================
+     Glass — reserved for navigation chrome + floating controls.
+     ========================================================================== */
   .glass-panel {
     background: var(--panel-bg);
     @apply backdrop-blur-2xl border rounded-3xl;
@@ -106,162 +274,384 @@ html.dark :focus-visible {
     box-shadow: 0 20px 60px -24px rgba(17,24,39,0.28), inset 0 1px 0 0 rgba(255,255,255,0.5);
   }
   html.dark .glass-panel {
-    box-shadow: 0 24px 64px -24px rgba(0,0,0,0.6), inset 0 1px 0 0 rgba(255,255,255,0.06);
+    background: var(--panel-bg);
+    border-color: var(--border-soft);
+    box-shadow: 0 24px 64px -30px rgba(0,0,0,0.78), inset 0 1px 0 0 var(--inner-highlight);
   }
-
-  .card, .glass-card {
+  /* .glass-card — legacy alias used in a few places for genuine glass content. */
+  .glass-card {
     background: var(--glass-bg);
     @apply backdrop-blur-xl border rounded-2xl shadow-glass transition-[box-shadow,transform,background-color] duration-300;
     border-color: var(--glass-border);
   }
-  html.dark .card, html.dark .glass-card {
+  html.dark .glass-card {
+    background: var(--glass-bg);
+    border-color: var(--border-soft);
     @apply shadow-glassDk;
   }
-  .card-hover {
-    @apply hover:-translate-y-0.5;
-  }
-  .card-hover:hover {
-    background: var(--glass-bg-strong);
-  }
 
-  /* Opaque surface for dense/long-form content (forms, tables, schedule grid)
-     where transparency would hurt readability. Strong glass stays for chrome. */
+  /* Solid opaque surface — for dense forms/tables where transparency hurts. */
   .surface-solid {
     @apply border rounded-2xl;
     background: var(--solid-surface);
     border-color: var(--glass-hair);
   }
 
-  /* Solid-ish inner tile used inside glass cards (list rows, stat wells) */
+  /* Legacy .tile — kept working, now points at compact tokens. */
   .tile {
     @apply rounded-xl border transition-colors duration-200;
-    background: rgba(255,255,255,0.4);
-    border-color: var(--glass-hair);
+    background: var(--card-bg-soft);
+    border-color: var(--card-border);
   }
-  html.dark .tile {
-    background: rgba(255,255,255,0.035);
-  }
-  .tile-hover:hover {
-    background: rgba(255,255,255,0.6);
-  }
-  html.dark .tile-hover:hover {
-    background: rgba(255,255,255,0.06);
-  }
+  html.dark .tile { background: var(--surface-main); border-color: var(--border-soft); }
+  .tile-hover:hover { background: rgba(91, 123, 212, 0.06); }
+  html.dark .tile-hover:hover { background: var(--surface-hover); border-color: rgba(91, 123, 212, 0.28); }
 
-  /* ---------- Icon rail (always dark glass) ---------- */
+  /* ==========================================================================
+     Icon rail — theme-aware. Active = brand-tinted, animated indicator.
+     ========================================================================== */
   .glass-rail {
-    background: rgba(22, 24, 30, 0.82);
+    background: var(--panel-bg);
     @apply backdrop-blur-xl border rounded-[26px] shadow-rail;
-    border-color: rgba(255,255,255,0.08);
+    border-color: var(--glass-border);
+  }
+  html.dark .glass-rail {
+    background: rgba(32, 33, 37, 0.92);
+    border-color: var(--border-soft);
+    box-shadow: 0 24px 70px -34px rgba(0,0,0,0.82), inset 0 1px 0 0 var(--inner-highlight);
   }
   .rail-item {
-    @apply relative flex h-11 w-11 items-center justify-center rounded-2xl text-night-300
-           transition-all duration-200 hover:text-white;
+    @apply relative flex h-11 w-11 items-center justify-center rounded-2xl text-night-500 dark:text-night-300
+           transition-all duration-200 hover:text-night-900 dark:hover:text-white;
   }
-  .rail-item:hover { background: rgba(255,255,255,0.08); }
+  .rail-item:hover { background: rgba(91, 123, 212, 0.09); }
+  html.dark .rail-item:hover { background: var(--surface-hover); }
   .rail-item-active {
-    @apply text-white;
-    background: rgba(255,255,255,0.14);
-    box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.18), 0 6px 16px -6px rgba(0,0,0,0.5);
+    @apply text-brand-700 dark:text-white;
+    background: rgba(91, 123, 212, 0.16);
+    box-shadow:
+      inset 0 0 0 1px rgba(91, 123, 212, 0.22),
+      0 6px 16px -8px rgba(91, 123, 212, 0.5);
+  }
+  html.dark .rail-item-active {
+    color: var(--text-primary);
+    background: rgba(91, 123, 212, 0.16);
+    box-shadow:
+      inset 0 0 0 1px rgba(91, 123, 212, 0.42),
+      0 6px 20px -8px rgba(91, 123, 212, 0.55);
   }
 
-  /* ---------- Nav panel items ----------
-     Compact rows; active = soft translucent tint + small accent bar,
-     NOT a big elevated white pill. */
+  /* ==========================================================================
+     Nav panel items — compact rows. Active = brand tint + brand accent bar.
+     ========================================================================== */
   .nav-item {
     @apply relative flex items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-[13px] text-night-600 dark:text-night-200
            transition-colors duration-200;
   }
+  /* Khmer overrides: force every typed class back to Kantumruy Pro and
+     drop the Latin-oriented letter-spacing / uppercase transforms that
+     don't read well in Khmer. */
   html.lang-km .t-page,
-  html.lang-km .t-card {
-    letter-spacing: 0;
-    line-height: 1.45;
-  }
-  html.lang-km .t-section {
-    letter-spacing: 0.02em;
-    line-height: 1.55;
-  }
-  html.lang-km .nav-item {
-    @apply py-2 text-[13.5px];
-  }
+  html.lang-km .t-h2,
+  html.lang-km .t-card,
+  html.lang-km .t-body,
+  html.lang-km .font-display,
+  html.lang-km .font-brand,
+  html.lang-km .font-ui { font-family: var(--font-khmer); letter-spacing: 0; line-height: 1.45; }
+  html.lang-km .t-section,
+  html.lang-km .t-eyebrow,
+  html.lang-km .t-label,
+  html.lang-km .t-caption { font-family: var(--font-khmer); letter-spacing: 0.02em; line-height: 1.55; text-transform: none; }
+  html.lang-km .nav-item { @apply py-2 text-[13.5px]; }
   html.lang-km .chip,
-  html.lang-km .count-pill {
-    line-height: 1.45;
-  }
+  html.lang-km .count-pill { line-height: 1.45; }
+
   .nav-item:hover {
-    background: rgba(255,255,255,0.45);
+    background: rgba(91, 123, 212, 0.08);
     @apply text-night-900 dark:text-white;
   }
-  html.dark .nav-item:hover { background: rgba(255,255,255,0.055); }
+  html.dark .nav-item:hover { background: var(--surface-hover); }
   .nav-item-active {
-    background: var(--glass-bg);
-    @apply text-night-900 dark:text-white font-medium;
+    background: rgba(91, 123, 212, 0.14);
+    @apply text-brand-700 dark:text-white font-semibold;
   }
+  html.dark .nav-item-active { background: rgba(91, 123, 212, 0.14); }
   .nav-item-active::before {
     content: '';
-    @apply absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-brand-500 dark:bg-brand-400;
+    @apply absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full;
+    background: rgb(var(--brand));
+    box-shadow: 0 0 8px rgba(91, 123, 212, 0.6);
   }
 
-  /* ---------- Chips / badges ---------- */
+  /* ==========================================================================
+     Chips, badges, status pills.
+     ========================================================================== */
   .chip {
     @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium
            text-night-700 dark:text-night-100;
-    background: rgba(255,255,255,0.5);
-    border: 1px solid var(--glass-hair);
+    background: rgba(15, 20, 40, 0.05);
+    border: 1px solid var(--card-border);
   }
-  html.dark .chip { background: rgba(255,255,255,0.06); }
+  html.dark .chip {
+    background: var(--surface-main);
+    border-color: var(--border-soft);
+    color: var(--text-secondary);
+  }
+
+  /* Brand chip — the ONE branded pill (countdowns, "Now" badges, current). */
+  .chip-brand {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-brand-700 dark:text-brand-200;
+    background: rgba(91, 123, 212, 0.14);
+    border: 1px solid rgba(91, 123, 212, 0.25);
+  }
+  html.dark .chip-brand { background: rgba(91, 123, 212, 0.22); }
+
+  /* Semantic status chips — orange (due soon), red (overdue), green (done). */
+  .chip-warn {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-tangerine-700 dark:text-tangerine-300;
+    background: rgba(249, 115, 22, 0.13);
+    border: 1px solid rgba(249, 115, 22, 0.24);
+  }
+  .chip-danger {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-red-700 dark:text-red-300;
+    background: rgba(220, 38, 38, 0.13);
+    border: 1px solid rgba(220, 38, 38, 0.26);
+  }
+  .chip-success {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-grass-700 dark:text-grass-300;
+    background: rgba(16, 185, 129, 0.13);
+    border: 1px solid rgba(16, 185, 129, 0.26);
+  }
+  .chip-live {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-grass-700 dark:text-grass-300;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.30);
+  }
+  .chip-live::before {
+    content: '';
+    @apply inline-block h-1.5 w-1.5 rounded-full bg-grass-500 animate-livePulse;
+  }
 
   .count-pill {
     @apply inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-[5px] text-[10.5px] font-semibold
-           text-night-500 dark:text-night-300 tabular-nums;
-    background: rgba(17,24,39,0.06);
+           text-night-600 dark:text-night-200 tabular-nums;
+    background: rgba(15,20,40,0.06);
   }
-  html.dark .count-pill { background: rgba(255,255,255,0.08); }
+  html.dark .count-pill { background: var(--surface-elevated); color: var(--text-secondary); }
 
-  .divider { @apply border-t; border-color: var(--glass-hair); }
+  /* Brand notification dot — small hard accent, used sparingly. */
+  .dot-brand {
+    @apply inline-block h-2 w-2 rounded-full;
+    background: rgb(var(--brand));
+    box-shadow: 0 0 0 2px var(--card-bg), 0 0 10px rgba(91, 123, 212, 0.55);
+  }
+  .dot-brand-live::after {
+    content: '';
+    @apply absolute inset-0 rounded-full animate-livePulse;
+    box-shadow: 0 0 0 4px rgba(91, 123, 212, 0.4);
+  }
 
-  /* ---------- Form controls (glass) ---------- */
-  /* Inputs read as near-solid for legibility (spec: solid surfaces for forms). */
+  .divider { @apply border-t; border-color: var(--card-border); }
+
+  /* ==========================================================================
+     Buttons — primary brand CTA, secondary quiet, ghost.
+     Use .btn-primary directly OR the Button component.
+     ========================================================================== */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 font-semibold rounded-xl
+           text-white bg-brand-600 hover:bg-brand-700 active:bg-brand-800
+           transition-[background-color,box-shadow,transform] duration-150 active:scale-[0.98]
+           shadow-brand;
+  }
+  .btn-primary:hover { box-shadow: 0 14px 32px -12px rgba(91, 123, 212, 0.65); }
+
+  /* ==========================================================================
+     Form controls — near-solid for legibility, brand focus.
+     ========================================================================== */
   .input-base {
     @apply w-full rounded-xl px-3.5 py-2.5 text-base sm:text-sm min-h-[44px]
-           text-night-900 dark:text-night-50 placeholder:text-night-400 dark:placeholder:text-night-400
+           text-night-900 dark:text-[var(--text-primary)] placeholder:text-night-400 dark:placeholder:text-[var(--text-subtle)]
            transition-[border-color,box-shadow,background-color] duration-200 border;
-    background: rgba(255,255,255,0.7);
-    border-color: var(--glass-border);
+    background: var(--card-bg);
+    border-color: var(--card-border-strong);
   }
-  html.dark .input-base { background: rgba(255,255,255,0.055); }
+  html.dark .input-base {
+    background: #24262b;
+    border-color: var(--border-strong);
+    box-shadow: inset 0 1px 0 0 var(--inner-highlight);
+  }
   .input-base:focus {
-    @apply border-brand-500/70 dark:border-brand-400/70 ring-2 ring-brand-500/15 dark:ring-brand-400/20;
-    background: rgba(255,255,255,0.9);
+    @apply border-brand-500 dark:border-brand-400 ring-2 ring-brand-500/20 dark:ring-brand-400/25;
+    background: var(--card-bg);
   }
-  html.dark .input-base:focus { background: rgba(255,255,255,0.09); }
+  html.dark .input-base:focus {
+    background: var(--surface-elevated);
+    border-color: rgb(var(--brand));
+    box-shadow: 0 0 0 3px rgba(91, 123, 212, 0.18), inset 0 1px 0 0 var(--inner-highlight);
+  }
 
+  input[type="date"].input-base,
+  input[type="time"].input-base { @apply text-night-700 dark:text-night-100; }
+  .input-base::-webkit-datetime-edit { padding: 0; }
+  .input-base::-webkit-datetime-edit-fields-wrapper { padding: 0; }
+  .input-base::-webkit-calendar-picker-indicator {
+    opacity: 0.5; cursor: pointer; padding: 3px; margin-left: 2px; border-radius: 6px;
+    transition: opacity 0.15s ease, background-color 0.15s ease;
+  }
+  .input-base::-webkit-calendar-picker-indicator:hover { opacity: 0.9; background: rgba(91, 123, 212, 0.10); }
+  html.dark .input-base::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.55; }
+  html.dark .input-base::-webkit-calendar-picker-indicator:hover { opacity: 0.9; background: rgba(91, 123, 212, 0.20); }
+  .input-base.picker-clean::-webkit-calendar-picker-indicator { display: none; }
+  .input-base.picker-clean::-webkit-inner-spin-button { display: none; }
+
+  /* ==========================================================================
+     Link — always brand.
+     ========================================================================== */
   .link {
     @apply text-brand-600 dark:text-brand-300 font-medium hover:text-brand-700 dark:hover:text-brand-200
            underline-offset-2 hover:underline transition-colors;
   }
 
-  /* ---------- Loading skeleton (gradient-free opacity pulse) ---------- */
+  /* ==========================================================================
+     Skeleton, image caption scrim.
+     ========================================================================== */
   .skeleton {
     @apply rounded-lg;
     background: rgba(120,130,160,0.14);
     animation: skeletonPulse 1.5s ease-in-out infinite;
   }
+  html.dark .skeleton { background: linear-gradient(90deg, #24262b, #2c2e34, #24262b); }
 
-  /* ---------- Image caption scrim ---------- */
   .img-caption {
     @apply absolute inset-x-0 bottom-0 p-3 text-white;
-    background: rgba(11,14,21,0.5);
+    background: linear-gradient(to top, rgba(11,14,21,0.75), rgba(11,14,21,0));
     backdrop-filter: blur(6px) saturate(120%);
   }
+
+  /* ==========================================================================
+     Subject-tinted class blocks. Consumers pass --subject as a CSS var.
+     Reads: soft subject-colored background, strong subject-colored accent bar
+     down the left edge, text stays night-900 for legibility.
+     ========================================================================== */
+  .subject-block {
+    position: relative;
+    @apply rounded-xl border overflow-hidden;
+    background: color-mix(in srgb, var(--subject, #5B7BD4) 10%, var(--card-bg));
+    border-color: color-mix(in srgb, var(--subject, #5B7BD4) 25%, transparent);
+    transition: transform 150ms cubic-bezier(0.22,1,0.36,1), box-shadow 200ms ease, background-color 200ms ease;
+  }
+  html.dark .subject-block {
+    background: color-mix(in srgb, var(--subject, #5B7BD4) 16%, var(--surface-secondary));
+    border-color: color-mix(in srgb, var(--subject, #5B7BD4) 40%, transparent);
+  }
+  .subject-block::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 6px; bottom: 6px; width: 3px;
+    border-radius: 3px;
+    background: var(--subject, #5B7BD4);
+  }
+  .subject-block:hover { transform: translateY(-1px); box-shadow: 0 12px 26px -14px rgba(15, 20, 40, 0.30); }
+
+  /* Current class = subject block with a soft brand ring + Now pulse dot. */
+  .subject-block-now {
+    box-shadow:
+      0 0 0 2px rgb(var(--brand) / 0.4),
+      0 14px 30px -12px rgba(91, 123, 212, 0.45);
+  }
+
+  /* ==========================================================================
+     Story ring — pink→brand→accent gradient border for avatar rings.
+     Used in Memory stories, group avatars.
+     ========================================================================== */
+  .story-ring {
+    background:
+      conic-gradient(from 210deg, #5B7BD4, #ec4899, #ffca47, #5B7BD4);
+    @apply p-[2px] rounded-full;
+  }
+
+  /* ==========================================================================
+     Interactive lift — apply to hover-able cards/rows for polished lift.
+     ========================================================================== */
+  .lift { @apply transition-transform duration-150 ease-smooth hover:-translate-y-0.5; }
+
+  /* Satisfying task-complete flash — used on the checkbox row wrapper. */
+  .just-done { animation: justDone 500ms cubic-bezier(0.22,1,0.36,1); }
+
+  /* Sidebar active-indicator bar (shared by open sidebar rows). */
+  .active-bar {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%;
+    height: 1rem; width: 3px;
+    transform: translateY(-50%);
+    border-radius: 9999px;
+    background: rgb(var(--brand));
+    box-shadow: 0 0 8px rgba(91, 123, 212, 0.55);
+  }
 }
+
+html.dark .dark\:bg-night-950 { background-color: var(--app-bg); }
+html.dark .dark\:bg-night-900 { background-color: var(--surface-main); }
+html.dark .dark\:bg-night-800 { background-color: var(--surface-main); }
+html.dark .dark\:bg-night-700 { background-color: var(--surface-secondary); }
+html.dark .dark\:bg-night-900\/50 { background-color: rgba(32, 33, 37, 0.5); }
+html.dark .dark\:bg-night-800\/50 { background-color: rgba(38, 40, 45, 0.5); }
+html.dark .dark\:bg-night-700\/50 { background-color: rgba(44, 46, 52, 0.55); }
+html.dark .dark\:bg-brand-900\/10 { background-color: rgba(91, 123, 212, 0.10); }
+html.dark .dark\:bg-brand-900\/20 { background-color: rgba(91, 123, 212, 0.14); }
+html.dark .dark\:bg-brand-900\/30 { background-color: rgba(91, 123, 212, 0.16); }
+html.dark .dark\:bg-brand-900\/40 { background-color: rgba(91, 123, 212, 0.18); }
+
+html.dark .dark\:border-night-700 { border-color: var(--border-soft); }
+html.dark .dark\:border-night-700\/60 { border-color: rgba(255, 255, 255, 0.07); }
+html.dark .dark\:border-night-600 { border-color: var(--border-strong); }
+html.dark .dark\:border-night-500 { border-color: #555b67; }
+html.dark .dark\:divide-night-700 > :not([hidden]) ~ :not([hidden]) { border-color: var(--border-soft); }
+html.dark .dark\:ring-night-900,
+html.dark .dark\:ring-night-800 { --tw-ring-color: var(--surface-main); }
+
+html.dark .dark\:text-white { color: var(--text-primary); }
+html.dark .dark\:text-night-50 { color: var(--text-primary); }
+html.dark .dark\:text-night-100 { color: var(--text-secondary); }
+html.dark .dark\:text-night-200 { color: var(--text-secondary); }
+html.dark .dark\:text-night-300 { color: var(--text-muted); }
+html.dark .dark\:text-night-400 { color: var(--text-subtle); }
+html.dark .dark\:text-night-500 { color: var(--text-disabled); }
+html.dark .dark\:placeholder\:text-night-300::placeholder { color: var(--text-subtle); }
+
+html.dark .dark\:hover\:bg-night-800:hover { background-color: var(--surface-hover); }
+html.dark .dark\:hover\:bg-night-700:hover { background-color: var(--surface-hover); }
+html.dark .dark\:hover\:bg-night-700\/50:hover { background-color: rgba(50, 53, 60, 0.72); }
+html.dark .dark\:hover\:text-night-100:hover { color: var(--text-primary); }
+
+html.dark .dark\:bg-white\/10,
+html.dark .dark\:bg-white\/\[0\.04\],
+html.dark .dark\:bg-white\/\[0\.05\],
+html.dark .dark\:bg-white\/\[0\.06\] { background-color: var(--surface-secondary); }
+html.dark .dark\:bg-white\/\[0\.08\],
+html.dark .dark\:bg-white\/\[0\.10\] { background-color: var(--surface-hover); }
+html.dark .dark\:hover\:bg-white\/5:hover,
+html.dark .dark\:hover\:bg-white\/\[0\.06\]:hover,
+html.dark .dark\:hover\:bg-white\/\[0\.08\]:hover,
+html.dark .dark\:hover\:bg-white\/\[0\.09\]:hover,
+html.dark .dark\:hover\:bg-white\/\[0\.10\]:hover,
+html.dark .dark\:hover\:bg-white\/10:hover { background-color: var(--surface-hover); }
+html.dark .dark\:border-white\/10 { border-color: var(--border-soft); }
+html.dark .dark\:ring-white\/15 { --tw-ring-color: rgba(255, 255, 255, 0.12); }
 
 @keyframes skeletonPulse {
   0%, 100% { opacity: 1; }
   50%      { opacity: 0.5; }
 }
 
-/* Tappable press feedback; touch-action removes the 300ms tap delay on touch devices */
+@keyframes justDone {
+  0%   { background: rgba(16, 185, 129, 0);    transform: scale(1); }
+  30%  { background: rgba(16, 185, 129, 0.22); transform: scale(1.01); }
+  100% { background: rgba(16, 185, 129, 0);    transform: scale(1); }
+}
+
+/* Tappable press feedback; touch-action removes the 300ms tap delay */
 button, a, [role="button"], input, select, textarea { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .press { @apply active:scale-[0.98] transition-transform duration-100; }
 

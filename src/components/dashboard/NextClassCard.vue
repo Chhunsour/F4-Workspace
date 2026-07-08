@@ -38,46 +38,59 @@ const info = computed(() => {
 </script>
 
 <template>
-  <div class="card p-5 sm:p-6">
+  <!-- Hero surface — brand-tinted, subject-color accent strip, countdown chip -->
+  <div class="hero-surface p-5 sm:p-7">
     <template v-if="info">
-      <div class="flex items-start justify-between gap-3">
-        <div class="min-w-0">
-          <p class="t-section flex items-center gap-1.5">
-            <span v-if="info.started" class="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-            {{ info.started ? t('Now') : t('Next up') }}
+      <!-- Subject color bar overlay (behind the ::before brand+accent gradient) -->
+      <span v-if="info.subject" aria-hidden
+            class="absolute left-0 top-0 h-full w-1"
+            :style="{ background: info.subject.color }" />
+
+      <div class="flex items-start justify-between gap-4">
+        <div class="min-w-0 flex-1">
+          <p class="t-eyebrow flex items-center gap-1.5">
+            <span v-if="info.started" class="relative inline-flex h-1.5 w-1.5">
+              <span class="absolute inset-0 rounded-full bg-grass-500 animate-livePulse" />
+            </span>
+            {{ info.started ? t('Now') : t('Next class') }}
           </p>
-          <h2 class="mt-1 truncate text-2xl font-semibold tracking-tight text-night-900 dark:text-night-50">
+          <h2 class="mt-1.5 truncate text-[26px] sm:text-[30px] font-bold tracking-tight text-night-900 dark:text-white">
             {{ info.subject?.name ?? t('Unnamed subject') }}
           </h2>
-          <p class="mt-0.5 text-sm text-night-500 dark:text-night-300">
-            {{ info.dayLabel }} · {{ fmtTime(info.class.start_time) }} – {{ fmtTime(info.class.end_time) }}<span v-if="info.class.room"> · {{ t('Room {room}', { room: info.class.room }) }}</span>
+          <p class="mt-1 text-sm text-night-600 dark:text-night-100 flex items-center gap-1.5 flex-wrap">
+            <Icon name="clock" :size="14" class="opacity-60" />
+            <span class="tabular-nums">{{ fmtTime(info.class.start_time) }} – {{ fmtTime(info.class.end_time) }}</span>
+            <span v-if="info.class.room" class="text-night-500 dark:text-night-200">·</span>
+            <span v-if="info.class.room">{{ t('Room {room}', { room: info.class.room }) }}</span>
+            <span class="text-night-500 dark:text-night-200">·</span>
+            <span>{{ info.dayLabel }}</span>
           </p>
         </div>
-        <span :class="['shrink-0 rounded-full px-3 py-1.5 text-sm font-semibold',
-                       info.started
-                         ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200'
-                         : 'bg-accent-100 text-accent-700 dark:bg-accent-300/15 dark:text-accent-300']">
+        <span :class="['shrink-0',
+                       info.started ? 'chip-live' : 'chip-brand',
+                       'text-[13px] px-3 py-1.5']">
           {{ info.countdown }}
         </span>
       </div>
 
-      <div v-if="info.subject" class="mt-4 flex flex-wrap gap-2">
+      <div v-if="info.subject" class="mt-5 flex flex-wrap gap-2">
         <Button size="sm" @click="router.push(`/study?subject=${info.subject.id}`)">
           <Icon name="play" :size="14" /> {{ t('Start study') }}
         </Button>
         <Button size="sm" variant="secondary" @click="router.push(`/notes?new=1&subject=${info.subject.id}`)">
           <Icon name="notes" :size="14" /> {{ t('Add note') }}
         </Button>
-        <Button size="sm" variant="secondary" @click="router.push(`/subjects/${info.subject.id}`)">
+        <Button size="sm" variant="ghost" @click="router.push(`/subjects/${info.subject.id}`)">
           {{ t('Open subject') }}
+          <Icon name="chevron_right" :size="14" />
         </Button>
       </div>
     </template>
 
     <template v-else>
-      <p class="t-section">{{ t('Next up') }}</p>
-      <h2 class="mt-1 text-xl font-semibold">{{ t('Nothing scheduled') }}</h2>
-      <p class="mt-0.5 text-sm text-night-500 dark:text-night-300">
+      <p class="t-eyebrow">{{ t('Next class') }}</p>
+      <h2 class="mt-1.5 text-2xl font-bold tracking-tight">{{ t('Nothing scheduled') }}</h2>
+      <p class="mt-1 text-sm text-night-600 dark:text-night-100">
         <RouterLink to="/schedule" class="link">{{ t('Add your classes') }}</RouterLink> {{ t('and your week shows up here.') }}
       </p>
     </template>

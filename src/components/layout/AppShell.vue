@@ -10,7 +10,9 @@ onMounted(() => { subjects.fetch().catch(() => {}) })
 </script>
 
 <template>
-  <div class="min-h-dvh flex p-3 lg:p-4">
+  <!-- Desktop: pin the shell to the viewport so only <main> scrolls and the
+       icon rail stays fixed. Mobile keeps normal page flow. -->
+  <div class="min-h-dvh lg:h-dvh lg:overflow-hidden flex p-3 lg:p-4">
     <!-- Icon rail: always visible on desktop. Tight gap so the context panel
          reads as sliding out of the same navigation system. -->
     <IconRail class="lg:mr-3" />

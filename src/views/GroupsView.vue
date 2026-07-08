@@ -55,8 +55,8 @@ async function submitJoin() {
   <div class="max-w-5xl mx-auto space-y-6">
     <div class="flex items-center justify-between flex-wrap gap-3">
       <div>
-        <h2 class="text-2xl font-semibold">{{ t('Groups') }}</h2>
-        <p class="text-sm text-night-500">{{ t('Study crews, project teams, close friends.') }}</p>
+        <h2 class="t-page">{{ t('Groups') }}</h2>
+        <p class="mt-1 text-sm text-night-600 dark:text-night-200">{{ t('Study crews, project teams, close friends.') }}</p>
       </div>
       <div class="flex gap-2">
         <Button variant="secondary" @click="joinOpen = true">{{ t('Join by code') }}</Button>
@@ -78,15 +78,17 @@ async function submitJoin() {
     </EmptyState>
 
     <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <RouterLink v-for="g in store.items" :key="g.id" :to="`/groups/${g.id}`" class="card p-5 card-hover">
+      <RouterLink v-for="g in store.items" :key="g.id" :to="`/groups/${g.id}`" class="card card-hover group p-5 relative overflow-hidden">
+        <span aria-hidden class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand-500 via-brand-400 to-accent-400 opacity-70" />
         <div class="flex items-center gap-3">
-          <div class="h-12 w-12 rounded-xl bg-brand-600 text-white grid place-items-center font-semibold text-lg shrink-0">
+          <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white grid place-items-center font-bold text-lg shrink-0 shadow-[0_10px_22px_-10px_rgba(91,123,212,0.65)] group-hover:scale-105 transition-transform">
             {{ g.name.slice(0,1).toUpperCase() }}
           </div>
           <div class="flex-1 min-w-0">
-            <div class="t-card truncate">{{ g.name }}</div>
-            <div class="text-xs text-night-500 dark:text-night-300 truncate">{{ g.description || t('No description') }}</div>
+            <div class="t-card truncate group-hover:text-brand-700 dark:group-hover:text-brand-300 transition-colors">{{ g.name }}</div>
+            <div class="text-xs text-night-600 dark:text-night-200 truncate mt-0.5">{{ g.description || t('No description') }}</div>
           </div>
+          <Icon name="chevron_right" :size="16" class="shrink-0 text-night-400 group-hover:text-brand-600 dark:group-hover:text-brand-300 group-hover:translate-x-0.5 transition-all" />
         </div>
       </RouterLink>
     </div>

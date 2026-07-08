@@ -50,31 +50,33 @@ async function doSignOut() {
 <template>
   <div class="max-w-3xl mx-auto space-y-6">
     <div>
-      <h2 class="text-2xl font-semibold">{{ t('Settings') }}</h2>
-      <p class="text-sm text-night-500">{{ t('Theme, study goals, account.') }}</p>
+      <h2 class="t-page">{{ t('Settings') }}</h2>
+      <p class="mt-1 text-sm text-night-600 dark:text-night-200">{{ t('Theme, study goals, account.') }}</p>
     </div>
 
     <Card>
-      <h3 class="font-semibold mb-3">{{ t('Theme') }}</h3>
+      <h3 class="t-card mb-3">{{ t('Theme') }}</h3>
       <div class="grid gap-2 sm:grid-cols-3">
         <button v-for="themeOption in themes" :key="themeOption.value" type="button"
           @click="theme.setMode(themeOption.value as any)"
-          :class="['text-left rounded-xl border p-3 transition-colors',
-                   theme.mode === themeOption.value ? 'border-brand-500 ring-2 ring-brand-200 dark:ring-brand-900' : 'border-surface-border dark:border-night-700 hover:bg-night-50 dark:hover:bg-night-800']">
-          <div class="font-medium">{{ t(themeOption.label) }}</div>
-          <div class="text-xs text-night-500">{{ t(themeOption.hint) }}</div>
+          :class="['text-left rounded-xl border p-3 transition-all',
+                   theme.mode === themeOption.value
+                     ? '!border-brand-500 bg-brand-500/8 dark:bg-brand-400/12 ring-2 ring-brand-500/25 -translate-y-0.5'
+                     : 'border-[var(--card-border)] hover:border-brand-300 hover:bg-brand-500/[0.03] dark:hover:bg-brand-400/[0.06]']">
+          <div class="font-semibold text-night-900 dark:text-white">{{ t(themeOption.label) }}</div>
+          <div class="text-xs text-night-500 dark:text-night-200 mt-0.5">{{ t(themeOption.hint) }}</div>
         </button>
       </div>
     </Card>
 
     <Card>
-      <h3 class="font-semibold mb-3">{{ t('Language') }}</h3>
-      <p class="mb-3 text-sm text-night-500 dark:text-night-300">{{ t('Choose the language used across Uni Life.') }}</p>
+      <h3 class="t-card mb-3">{{ t('Language') }}</h3>
+      <p class="mb-3 text-sm text-night-500 dark:text-night-300">{{ t('Choose the language used across Team F4.') }}</p>
       <LanguageSwitcher />
     </Card>
 
     <Card>
-      <h3 class="font-semibold mb-3">{{ t('Study goals') }}</h3>
+      <h3 class="t-card mb-3">{{ t('Study goals') }}</h3>
       <div class="flex flex-wrap items-end gap-3">
         <div class="w-full sm:w-64">
           <Input v-model="goal as any" type="number" min="30" step="30" :label="t('Weekly goal (minutes)')" :hint="t('Default: 600 min = 10 hours')" />
@@ -84,8 +86,8 @@ async function doSignOut() {
     </Card>
 
     <Card>
-      <h3 class="font-semibold mb-3">{{ t('Account') }}</h3>
-      <div class="text-sm text-night-500 mb-3">{{ t('Signed in as') }} <span class="font-medium text-night-900 dark:text-night-50">{{ auth.email }}</span></div>
+      <h3 class="t-card mb-3">{{ t('Account') }}</h3>
+      <div class="text-sm text-night-600 dark:text-night-200 mb-3">{{ t('Signed in as') }} <span class="font-semibold text-night-900 dark:text-white">{{ auth.email }}</span></div>
       <Button variant="danger" @click="doSignOut">{{ t('Sign out') }}</Button>
     </Card>
   </div>

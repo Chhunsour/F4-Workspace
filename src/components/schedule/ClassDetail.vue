@@ -34,7 +34,7 @@ function go(to: string) {
   <Modal :open="props.open" :title="subject?.name ?? 'Class'" @update:open="v => emit('update:open', v)">
     <div v-if="props.item" class="space-y-4">
       <div class="flex items-center gap-3">
-        <span class="h-10 w-1.5 shrink-0 rounded-full" :style="{ background: subject?.color ?? '#3a68ff' }" />
+        <span class="h-10 w-1.5 shrink-0 rounded-full" :style="{ background: subject?.color ?? '#5B7BD4' }" />
         <div class="text-sm">
           <div class="font-medium">
             {{ WEEKDAY_LONG[props.item.weekday] }} · {{ fmtTime(props.item.start_time) }} – {{ fmtTime(props.item.end_time) }}

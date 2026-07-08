@@ -40,9 +40,9 @@ async function submit() {
 
 <template>
   <AuthLayout>
-    <span class="chip">Batch 22 · Evening</span>
+    <span class="chip">Team F4 · Shared space</span>
     <h1 class="mt-3 text-2xl font-semibold tracking-tight">{{ t('Welcome back') }}</h1>
-    <p class="mt-1 text-sm text-night-500 dark:text-night-300">{{ t('Check what\'s next and keep your week moving.') }}</p>
+    <p class="mt-1 text-sm text-night-500 dark:text-night-300">{{ t('Check what\'s next and keep the team moving.') }}</p>
 
     <form class="mt-6 space-y-4" novalidate @submit.prevent="submit">
       <Input v-model="email" type="email" :label="t('Email')" autocomplete="email" autofocus

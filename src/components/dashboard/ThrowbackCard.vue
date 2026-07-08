@@ -23,16 +23,21 @@ const pick = computed(() => {
 </script>
 
 <template>
-  <RouterLink v-if="pick" :to="`/memories/${pick.m.id}`"
-              class="card card-hover relative block aspect-[16/10] overflow-hidden !p-0">
-    <img :src="mem.thumbnailUrl(pick.m.id)!" loading="lazy" decoding="async"
-         class="absolute inset-0 h-full w-full object-cover" alt="" />
-    <div class="img-caption">
-      <p class="text-[11px] font-semibold uppercase tracking-[0.09em] text-white/70">Remember this day?</p>
-      <div class="mt-0.5 flex items-baseline justify-between gap-2">
-        <span class="truncate text-sm font-medium">{{ pick.m.title || 'Untitled' }}</span>
-        <span class="shrink-0 text-xs opacity-80">{{ fmtDate(pick.m.event_date ?? pick.m.created_at, { month:'short', day:'numeric', year:'numeric' }) }}</span>
+  <section v-if="pick">
+    <h3 class="t-section mb-3">Memory moment</h3>
+    <RouterLink :to="`/memories/${pick.m.id}`"
+                class="media lift group relative block aspect-[16/10]">
+      <img :src="mem.thumbnailUrl(pick.m.id)!" loading="lazy" decoding="async"
+           class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" alt="" />
+      <!-- Subtle brand tint overlay on hover -->
+      <div class="absolute inset-0 bg-gradient-to-t from-brand-900/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div class="img-caption">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-200">✦ {{ pick.ago }} days ago</p>
+        <div class="mt-0.5 flex items-baseline justify-between gap-2">
+          <span class="truncate text-[15px] font-semibold">{{ pick.m.title || 'Untitled' }}</span>
+          <span class="shrink-0 text-xs opacity-80 tabular-nums">{{ fmtDate(pick.m.event_date ?? pick.m.created_at, { month:'short', day:'numeric', year:'numeric' }) }}</span>
+        </div>
       </div>
-    </div>
-  </RouterLink>
+    </RouterLink>
+  </section>
 </template>

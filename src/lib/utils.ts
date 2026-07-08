@@ -25,6 +25,12 @@ export function fmtDate(d: string | Date | null | undefined, opts: Intl.DateTime
   return date.toLocaleDateString(undefined, opts)
 }
 
+export function fmtDateTime(d: string | Date | null | undefined) {
+  if (!d) return ''
+  const date = typeof d === 'string' ? new Date(d) : d
+  return date.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+}
+
 export function fmtTime(t: string | null | undefined) {
   if (!t) return ''
   const [hStr, mStr] = t.split(':')

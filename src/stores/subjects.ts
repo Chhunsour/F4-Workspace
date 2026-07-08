@@ -31,7 +31,7 @@ export const useSubjectsStore = defineStore('subjects', {
       if (!owner_id) throw new Error('Not signed in')
       const { data, error } = await supabase
         .from('subjects')
-        .insert({ owner_id, color: '#3a68ff', ...patch })
+        .insert({ owner_id, color: '#5B7BD4', ...patch })
         .select()
         .single()
       if (error) throw error

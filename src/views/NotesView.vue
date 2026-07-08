@@ -103,8 +103,8 @@ async function remove() {
   <div class="max-w-6xl mx-auto space-y-4">
     <div class="flex items-center justify-between flex-wrap gap-3">
       <div>
-        <h2 class="text-2xl font-semibold">{{ t('Notes') }}</h2>
-        <p class="text-sm text-night-500">{{ t('{count} notes', { count: store.items.length }) }}</p>
+        <h2 class="t-page">{{ t('Notes') }}</h2>
+        <p class="mt-1 text-sm text-night-600 dark:text-night-200">{{ t('{count} notes', { count: store.items.length }) }}</p>
       </div>
       <Button @click="createBlank"><Icon name="plus" :size="16" /> {{ t('New note') }}</Button>
     </div>
@@ -123,14 +123,16 @@ async function remove() {
             <div v-if="subjects.items.length" class="flex flex-wrap gap-1.5">
               <button v-for="su in subjects.items" :key="su.id"
                 @click="store.activeSubject = store.activeSubject === su.id ? '' : su.id"
-                :class="['chip transition-colors inline-flex items-center gap-1.5', store.activeSubject === su.id ? '!bg-brand-600 !text-white' : '']">
+                :class="['transition-all inline-flex items-center gap-1.5',
+                         store.activeSubject === su.id ? 'chip-brand !bg-brand-600 !text-white !border-brand-600' : 'chip hover:border-brand-300']">
                 <span class="h-2 w-2 rounded-full" :style="{ background: su.color }" /> {{ su.name }}
               </button>
             </div>
             <div class="flex flex-wrap gap-1.5">
               <button v-for="t in store.tags" :key="t"
                 @click="store.activeTag = store.activeTag === t ? '' : t"
-                :class="['chip transition-colors', store.activeTag === t ? '!bg-brand-600 !text-white' : '']">
+                :class="['transition-all',
+                         store.activeTag === t ? 'chip-brand !bg-brand-600 !text-white !border-brand-600' : 'chip hover:border-brand-300']">
                 #{{ t }}
               </button>
             </div>
@@ -143,17 +145,17 @@ async function remove() {
           <li v-for="n in store.filtered" :key="n.id">
             <button
               @click="open(n)"
-              :class="['w-full text-left rounded-xl border p-3 transition-shadow hover:shadow-card',
-                       active?.id === n.id ? 'border-brand-400 ring-1 ring-brand-300' : 'border-surface-border dark:border-night-700']"
+              :class="['w-full text-left rounded-xl border p-3 transition-all hover:-translate-y-0.5 hover:shadow-cardH',
+                       active?.id === n.id ? '!border-brand-500 ring-2 ring-brand-500/25 shadow-brand' : 'border-[var(--card-border)]']"
               :style="{ background: n.color ?? '#ffffff' + (n.color === '#ffffff' ? '' : '55') }">
               <div class="flex items-center gap-2">
                 <Icon v-if="n.is_pinned" name="pin" :size="14" class="text-brand-600" />
-                <div class="font-medium text-sm truncate flex-1 text-night-900">{{ n.title || t('Untitled') }}</div>
+                <div class="font-semibold text-sm truncate flex-1 text-night-900">{{ n.title || t('Untitled') }}</div>
               </div>
               <p class="text-xs text-night-700 line-clamp-2 mt-0.5">{{ n.body }}</p>
-              <div class="mt-1.5 flex items-center gap-1 text-[10px] text-night-500">
+              <div class="mt-1.5 flex items-center gap-1 text-[10px] font-medium text-night-600">
                 <span>{{ fmtDate(n.updated_at, { month:'short', day:'numeric' }) }}</span>
-                <span v-if="n.tags.length" class="ml-auto">#{{ n.tags.slice(0,2).join(' #') }}</span>
+                <span v-if="n.tags.length" class="ml-auto text-brand-700">#{{ n.tags.slice(0,2).join(' #') }}</span>
               </div>
             </button>
           </li>

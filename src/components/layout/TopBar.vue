@@ -18,7 +18,7 @@ const titleMap: Record<string, string> = {
   calendar: 'Calendar', notes: 'Notes', memories: 'Memory', 'memory-dashboard': 'Memory', memory: 'Memory',
   groups: 'Groups', group: 'Group', profile: 'Profile', settings: 'Settings',
 }
-const title = computed(() => t(titleMap[String(route.name ?? 'dashboard')] ?? 'Uni Life'))
+const title = computed(() => t(titleMap[String(route.name ?? 'dashboard')] ?? 'Team F4'))
 </script>
 
 <template>

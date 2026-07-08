@@ -37,49 +37,53 @@ const allClear = computed(() =>
       <RouterLink to="/assignments" class="link text-xs">All tasks →</RouterLink>
     </div>
 
-    <div v-if="allClear" class="py-6 text-center">
-      <p class="text-sm font-medium text-night-700 dark:text-night-100">All clear</p>
-      <p class="mt-1 text-xs text-night-500 dark:text-night-300">
+    <div v-if="allClear" class="rounded-2xl border border-grass-500/25 bg-grass-500/8 dark:bg-grass-500/12 px-4 py-6 text-center">
+      <div class="mx-auto mb-2 grid h-10 w-10 place-items-center rounded-full bg-grass-500/20 text-grass-600 dark:text-grass-300">
+        <Icon name="check" :size="18" />
+      </div>
+      <p class="text-[15px] font-semibold text-night-900 dark:text-white">All clear</p>
+      <p class="mt-1 text-xs text-night-600 dark:text-night-100">
         Nothing overdue, nothing due soon.
         <RouterLink to="/assignments?new=1" class="link">Add a task</RouterLink> when the workload returns.
       </p>
     </div>
 
     <template v-else>
-      <ul v-if="overdue.length || upcoming.length" class="divide-y divide-surface-border dark:divide-night-700">
-        <li v-for="a in [...overdue, ...upcoming]" :key="a.id" class="flex items-center gap-3 py-2.5 first:pt-0">
-          <button class="relative after:absolute after:-inset-1.5 after:content-[''] h-6 w-6 shrink-0 rounded-full border-2 border-night-300 transition-colors hover:border-brand-500 dark:border-night-500"
+      <ul v-if="overdue.length || upcoming.length" class="space-y-1">
+        <li v-for="a in [...overdue, ...upcoming]" :key="a.id"
+            class="group flex items-center gap-3 rounded-xl px-2 py-2.5 transition-colors hover:bg-brand-500/6 dark:hover:bg-brand-400/10">
+          <button class="relative after:absolute after:-inset-1.5 after:content-[''] h-6 w-6 shrink-0 rounded-full border-2 border-night-300 dark:border-night-500 transition-all hover:border-brand-500 hover:bg-brand-500/10"
                   aria-label="Mark done" @click="assignments.toggleComplete(a.id)" />
           <RouterLink :to="`/assignments?id=${a.id}`" class="min-w-0 flex-1">
-            <div class="truncate font-medium">{{ a.title }}</div>
-            <div class="truncate text-xs text-night-500 dark:text-night-300">
+            <div class="truncate text-[14px] font-medium text-night-900 dark:text-white group-hover:text-brand-700 dark:group-hover:text-brand-200 transition-colors">{{ a.title }}</div>
+            <div class="truncate text-xs text-night-500 dark:text-night-200">
               <span v-if="subjects.byId(a.subject_id)">{{ subjects.byId(a.subject_id)!.name }} · </span>
               <template v-if="dueDate(a)">
                 {{ fmtDate(a.due_date!, { month:'short', day:'numeric' }) }}
-                <span :class="dueDate(a)! < now ? 'font-semibold text-red-500' : ''">
+                <span :class="dueDate(a)! < now ? 'font-semibold text-red-600 dark:text-red-300' : ''">
                   · {{ dueLabel(dueDate(a)!, now) }}
                 </span>
               </template>
             </div>
           </RouterLink>
-          <Badge v-if="dueDate(a)! < now" tone="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-200">Overdue</Badge>
+          <span v-if="dueDate(a)! < now" class="chip-danger shrink-0">Overdue</span>
           <Badge v-else-if="a.priority !== 'normal'" :tone="PRIORITY_LABELS[a.priority].tone">{{ PRIORITY_LABELS[a.priority].label }}</Badge>
         </li>
       </ul>
 
-      <div v-if="deadlines.length" :class="overdue.length || upcoming.length ? 'mt-3 border-t border-surface-border pt-3 dark:border-night-700' : ''">
+      <div v-if="deadlines.length" :class="overdue.length || upcoming.length ? 'mt-4 border-t border-[var(--card-border)] pt-3' : ''">
         <p class="t-section mb-2">Project deadlines</p>
         <ul class="space-y-1">
           <li v-for="p in deadlines" :key="p.id">
             <RouterLink :to="`/projects/${p.id}`"
-                        class="-mx-2 flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-night-50 dark:hover:bg-night-700/50">
-              <span class="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-sm font-semibold text-white"
-                    :style="{ background: p.color ?? '#3a68ff' }">
+                        class="-mx-2 flex items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-brand-500/6 dark:hover:bg-brand-400/10">
+              <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-[13px] font-bold text-white ring-2 ring-white dark:ring-night-800"
+                    :style="{ background: p.color ?? '#5B7BD4' }">
                 {{ p.name.slice(0,1).toUpperCase() }}
               </span>
               <div class="min-w-0 flex-1">
-                <div class="truncate text-sm font-medium">{{ p.name }}</div>
-                <div class="truncate text-xs text-night-500 dark:text-night-300">
+                <div class="truncate text-sm font-medium text-night-900 dark:text-white">{{ p.name }}</div>
+                <div class="truncate text-xs text-night-500 dark:text-night-200">
                   Due {{ fmtDate(p.deadline!) }} · {{ humanCountdown(new Date(p.deadline!), now) }} left · {{ p.progress }}%
                 </div>
               </div>

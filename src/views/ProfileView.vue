@@ -60,20 +60,27 @@ async function onFile(e: Event) {
 <template>
   <div class="max-w-3xl mx-auto space-y-6">
     <div>
-      <h2 class="text-2xl font-semibold">{{ t('Profile') }}</h2>
-      <p class="text-sm text-night-500">{{ t('Visible to your friends and group members.') }}</p>
+      <h2 class="t-page">{{ t('Profile') }}</h2>
+      <p class="mt-1 text-sm text-night-600 dark:text-night-200">{{ t('Visible to your friends and group members.') }}</p>
     </div>
 
-    <Card padded>
+    <div class="hero-surface p-6">
       <div class="flex items-center gap-5">
-        <Avatar :src="auth.avatarPublicUrl" :name="auth.displayName" size="xl" />
-        <div>
+        <div class="story-ring">
+          <span class="block rounded-full bg-white p-[2px] dark:bg-[var(--surface-secondary)]">
+            <Avatar :src="auth.avatarPublicUrl" :name="auth.displayName" size="xl" />
+          </span>
+        </div>
+        <div class="min-w-0">
+          <div class="text-lg font-bold text-night-900 dark:text-white truncate">{{ auth.displayName }}</div>
+          <div class="text-sm text-night-600 dark:text-night-100 truncate">{{ auth.email }}</div>
           <input ref="inputRef" type="file" accept="image/*" class="hidden" @change="onFile" />
-          <Button variant="secondary" :loading="uploading" @click="pick"><Icon name="camera" :size="16" /> {{ t('Change photo') }}</Button>
-          <p class="text-xs text-night-500 mt-2">{{ t('JPG, PNG or WebP. Auto-compressed.') }}</p>
+          <div class="mt-3">
+            <Button variant="secondary" size="sm" :loading="uploading" @click="pick"><Icon name="camera" :size="14" /> {{ t('Change photo') }}</Button>
+          </div>
         </div>
       </div>
-    </Card>
+    </div>
 
     <Card>
       <form class="space-y-4" @submit.prevent="save">

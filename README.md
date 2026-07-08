@@ -1,4 +1,4 @@
-# Uni Life
+# Team F4
 
 A private student life management app for us and the crew. Vue 3 + TypeScript + Vite + Tailwind + Pinia + Vue Router + Supabase.
 

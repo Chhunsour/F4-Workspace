@@ -2,6 +2,7 @@
 import { reactive, watch, computed } from 'vue'
 import Modal from '@/components/ui/Modal.vue'
 import Input from '@/components/ui/Input.vue'
+import DateField from '@/components/ui/DateField.vue'
 import Textarea from '@/components/ui/Textarea.vue'
 import Select from '@/components/ui/Select.vue'
 import Button from '@/components/ui/Button.vue'
@@ -85,7 +86,7 @@ async function remove() {
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Select v-model="form.subject_id" :options="subjectOptions" label="Subject" placeholder="No subject" />
         <Select v-model="form.group_id" :options="groupOptions" label="Group" placeholder="Personal / no group" />
-        <Input v-model="form.deadline" type="date" label="Deadline" />
+        <DateField v-model="form.deadline" type="date" label="Deadline" />
         <Select v-model="form.status as any" label="Status" :options="[
           { value: 'active', label: 'Active' },{ value: 'on_hold', label: 'On hold' },
           { value: 'completed', label: 'Completed' },{ value: 'archived', label: 'Archived' },
@@ -94,7 +95,7 @@ async function remove() {
       <div>
         <label class="block text-sm font-medium text-night-700 dark:text-night-100 mb-1.5">Color</label>
         <div class="flex flex-wrap gap-2">
-          <button v-for="c in ['#3a68ff','#22c55e','#ec4899','#f59a06','#8b5cf6','#0ea5e9','#ef4444','#14b8a6']" :key="c" type="button"
+          <button v-for="c in ['#5B7BD4','#22c55e','#ec4899','#f59a06','#8b5cf6','#0ea5e9','#ef4444','#14b8a6']" :key="c" type="button"
             class="h-8 w-8 rounded-lg border-2 border-white shadow-soft ring-offset-1"
             :class="form.color === c ? 'ring-2 ring-night-900 dark:ring-white' : ''"
             :style="{ background: c }" @click="form.color = c" />

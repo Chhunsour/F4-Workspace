@@ -6,6 +6,7 @@ import Textarea from '@/components/ui/Textarea.vue'
 import Select from '@/components/ui/Select.vue'
 import Button from '@/components/ui/Button.vue'
 import Icon from '@/components/ui/Icon.vue'
+import DateField from '@/components/ui/DateField.vue'
 import { useAssignmentsStore } from '@/stores/assignments'
 import { useSubjectsStore } from '@/stores/subjects'
 import { useToast } from '@/composables/useToast'
@@ -31,6 +32,7 @@ const form = reactive({
   notes: '',
 })
 const moreOpen = ref(false)
+const showDate = ref(false)   // reveal the exact-date picker (presets cover most cases)
 const err = reactive<Record<string,string>>({})
 const saving = ref(false)
 
@@ -49,14 +51,28 @@ watch(() => [props.open, props.editing], () => {
     })
     // Show the fold when the item actually uses those fields
     moreOpen.value = !!(props.editing.description || props.editing.notes || props.editing.priority !== 'normal' || props.editing.status !== 'todo')
+    showDate.value = !!props.editing.due_date
   } else {
     Object.assign(form, { title: '', description: '', subject_id: props.defaultSubject ?? null, due_date: '', due_time: '', priority: 'normal', status: 'todo', notes: '' })
     moreOpen.value = false
+    showDate.value = false
   }
   for (const k of Object.keys(err)) delete err[k]
 }, { immediate: true })
 
 const subjectOptions = computed(() => subjects.items.map(s => ({ value: s.id, label: s.name })))
+
+// Quick due-date presets. Local YYYY-MM-DD so we don't drift a day via UTC.
+const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+const datePresets = computed(() => {
+  const now = new Date()
+  const at = (days: number) => { const d = new Date(now); d.setDate(d.getDate() + days); return ymd(d) }
+  return [
+    { label: t('Today'),     value: at(0) },
+    { label: t('Tomorrow'),  value: at(1) },
+    { label: t('Next week'), value: at(7) },
+  ]
+})
 
 async function save() {
   for (const k of Object.keys(err)) delete err[k]
@@ -102,9 +118,30 @@ async function remove() {
     <form class="space-y-4" @submit.prevent="save">
       <Input v-model="form.title" :label="t('What do you need to do?')" placeholder="e.g. ER diagram for the gym database" required :error="err.title" />
       <Select v-model="form.subject_id" :options="subjectOptions" :label="t('Subject')" :placeholder="t('No subject')" />
-      <div class="grid grid-cols-2 gap-3">
-        <Input v-model="form.due_date" type="date" :label="t('When is it due?')" />
-        <Input v-model="form.due_time" type="time" :label="t('Time')" />
+
+      <div>
+        <span class="block t-label mb-1.5">{{ t('When is it due?') }}</span>
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button v-for="p in datePresets" :key="p.label" type="button"
+                  @click="form.due_date = p.value; showDate = false"
+                  :class="['chip transition-colors', form.due_date === p.value
+                            ? '!bg-brand-600 !text-white !border-transparent'
+                            : 'hover:!bg-white/80 dark:hover:!bg-white/10']">
+            {{ p.label }}
+          </button>
+          <button type="button" @click="showDate = !showDate"
+                  :class="['chip transition-colors', showDate
+                            ? '!bg-brand-600 !text-white !border-transparent'
+                            : 'hover:!bg-white/80 dark:hover:!bg-white/10']">
+            <Icon name="calendar" :size="13" /> {{ t('Pick a date') }}
+          </button>
+          <button v-if="form.due_date" type="button"
+                  @click="form.due_date = ''; form.due_time = ''; showDate = false"
+                  class="ml-auto text-xs text-night-400 hover:text-night-700 dark:hover:text-night-100 transition-colors">
+            {{ t('Clear') }}
+          </button>
+        </div>
+        <DateField v-if="showDate" v-model="form.due_date" type="date" class="mt-3" />
       </div>
 
       <button type="button"
@@ -115,6 +152,7 @@ async function remove() {
       </button>
 
       <div v-if="moreOpen" class="space-y-3">
+        <DateField v-model="form.due_time" type="time" label="Due time" />
         <Select v-model="form.status as any" :label="t('Status')" :options="[
           { value: 'todo', label: t('To Do') },
           { value: 'in_progress', label: t('Doing') },

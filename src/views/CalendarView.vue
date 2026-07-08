@@ -36,7 +36,7 @@ function eventsForDate(d: Date): Ev[] {
   // classes on this weekday
   for (const c of schedule.byWeekday(d.getDay())) {
     const s = subjects.byId(c.subject_id)
-    out.push({ date: d, label: `${(c.start_time||'').slice(0,5)} ${s?.name ?? t('Class')}`, color: s?.color ?? '#3a68ff', kind: 'class', sub: c.room ?? '', to: '/schedule' })
+    out.push({ date: d, label: `${(c.start_time||'').slice(0,5)} ${s?.name ?? t('Class')}`, color: s?.color ?? '#5B7BD4', kind: 'class', sub: c.room ?? '', to: '/schedule' })
   }
   for (const a of assignments.items) {
     if (a.due_date === iso) {
@@ -109,16 +109,17 @@ function jumpToday() { cursor.value = new Date() }
   <div class="max-w-6xl mx-auto space-y-4">
     <div class="flex items-center justify-between flex-wrap gap-3">
       <div>
-        <h2 class="text-2xl font-semibold">{{ monthLabel }}</h2>
-        <p class="text-sm text-night-500">{{ t('Classes, assignments, project deadlines — all in one view.') }}</p>
+        <h2 class="t-page">{{ monthLabel }}</h2>
+        <p class="mt-1 text-sm text-night-600 dark:text-night-200">{{ t('Classes, assignments, project deadlines — all in one view.') }}</p>
       </div>
-      <!-- view switch + paging: desktop only; mobile gets the day strip below -->
       <div class="hidden sm:flex items-center gap-2">
-        <div class="tile p-0.5 flex text-sm">
+        <div class="compact p-0.5 flex text-sm">
           <button v-for="v in ['month','week','agenda']" :key="v"
                   @click="view = v as View"
-                  :class="['px-3 py-1.5 rounded-lg capitalize transition-colors',
-                           view === v ? 'bg-brand-600 text-white' : 'text-night-700 dark:text-night-100']">
+                  :class="['px-3.5 py-1.5 rounded-lg capitalize font-semibold transition-all',
+                           view === v
+                             ? 'bg-brand-600 text-white shadow-brand'
+                             : 'text-night-700 dark:text-night-100 hover:text-brand-700 dark:hover:text-brand-300']">
             {{ t(v) }}
           </button>
         </div>
@@ -137,15 +138,15 @@ function jumpToday() { cursor.value = new Date() }
     <div class="sm:hidden space-y-3">
       <div class="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
         <button v-for="d in dayStrip" :key="d.toISOString()"
-                :class="['flex flex-none flex-col items-center rounded-xl border px-3.5 py-1.5 transition-colors',
+                :class="['flex flex-none flex-col items-center rounded-xl border px-3.5 py-1.5 transition-all',
                          isSelected(d)
-                           ? 'border-brand-600 bg-brand-600 text-white'
+                           ? 'border-brand-500 bg-brand-600 text-white shadow-brand -translate-y-0.5'
                            : isToday(d)
-                             ? 'border-brand-400/60 tile text-brand-600 dark:text-brand-300'
-                             : 'tile border-transparent text-night-600 dark:text-night-200']"
+                             ? 'border-brand-400/60 bg-brand-500/8 dark:bg-brand-400/12 text-brand-700 dark:text-brand-300 font-semibold'
+                             : 'border-transparent bg-[var(--card-bg-soft)] text-night-600 dark:text-night-100 hover:border-brand-300']"
                 @click="selectedDay = d">
-          <span class="text-[10px] font-medium uppercase tracking-wide opacity-70">{{ WEEKDAY_LONG[d.getDay()].slice(0,3) }}</span>
-          <span class="text-sm font-semibold tabular-nums">{{ d.getDate() }}</span>
+          <span class="text-[10px] font-bold uppercase tracking-wide opacity-80">{{ WEEKDAY_LONG[d.getDay()].slice(0,3) }}</span>
+          <span class="text-sm font-bold tabular-nums">{{ d.getDate() }}</span>
         </button>
       </div>
 
@@ -174,9 +175,9 @@ function jumpToday() { cursor.value = new Date() }
       <div class="grid grid-cols-7 gap-1">
         <div v-for="cell in monthGrid" :key="cell.date.toISOString()"
              :class="['min-h-[92px] rounded-lg border p-1.5 transition-colors',
-                      cell.inMonth ? 'bg-white dark:bg-night-800' : 'bg-night-50/60 dark:bg-night-900/50 text-night-400',
-                      isToday(cell.date) ? 'border-brand-400 ring-2 ring-brand-200 dark:ring-brand-900' : 'border-surface-border dark:border-night-700']">
-          <div class="text-[11px] font-medium">{{ cell.date.getDate() }}</div>
+                      cell.inMonth ? 'bg-[var(--card-bg)]' : 'bg-[var(--card-bg-soft)] text-night-400 dark:text-night-300',
+                      isToday(cell.date) ? '!border-brand-500 bg-brand-500/[0.06] dark:bg-brand-400/[0.10] shadow-[inset_0_0_0_1px_rgba(91,123,212,0.35)]' : 'border-[var(--card-border)]']">
+          <div :class="['text-[11px] font-bold', isToday(cell.date) && 'text-brand-700 dark:text-brand-300']">{{ cell.date.getDate() }}</div>
           <ul class="mt-1 space-y-0.5">
             <li v-for="(e, i) in cell.events.slice(0,3)" :key="i">
               <RouterLink :to="e.to"
@@ -194,10 +195,10 @@ function jumpToday() { cursor.value = new Date() }
     <!-- week -->
     <div v-else-if="view === 'week'" class="hidden sm:grid grid-cols-7 gap-3">
       <div v-for="w in weekGrid" :key="w.date.toISOString()"
-           :class="['card p-3 min-h-[300px]', isToday(w.date) && 'ring-2 ring-brand-400']">
+           :class="['card p-3 min-h-[300px]', isToday(w.date) && '!border-brand-500 bg-brand-500/[0.03] dark:bg-brand-400/[0.06]']">
         <div class="mb-2">
-          <div class="text-[11px] uppercase tracking-wide text-night-500">{{ t(WEEKDAY_LONG[w.date.getDay()]).slice(0,3) }}</div>
-          <div class="font-semibold">{{ w.date.getDate() }}</div>
+          <div :class="['text-[11px] font-bold uppercase tracking-wide', isToday(w.date) ? 'text-brand-700 dark:text-brand-300' : 'text-night-500 dark:text-night-200']">{{ t(WEEKDAY_LONG[w.date.getDay()]).slice(0,3) }}</div>
+          <div :class="['font-bold text-lg', isToday(w.date) && 'text-brand-700 dark:text-brand-300']">{{ w.date.getDate() }}</div>
         </div>
         <ul class="space-y-1.5">
           <li v-for="(e, i) in w.events" :key="i">
@@ -213,16 +214,19 @@ function jumpToday() { cursor.value = new Date() }
 
     <!-- agenda -->
     <Card v-else padded class="!p-4 hidden sm:block">
-      <ul v-if="agenda.length" class="divide-y" style="border-color: var(--glass-hair)">
+      <ul v-if="agenda.length" class="divide-y divide-[var(--card-border)]">
         <li v-for="day in agenda" :key="day.date.toISOString()" class="py-3">
-          <div class="text-xs uppercase tracking-wide text-night-500 mb-2">{{ fmtDate(day.date, { weekday:'long', month:'long', day:'numeric' }) }}</div>
+          <div class="t-section mb-2 flex items-center gap-2">
+            <span v-if="isToday(day.date)" class="inline-block h-1.5 w-1.5 rounded-full bg-brand-500 shadow-[0_0_6px_rgba(91,123,212,0.7)]" />
+            {{ fmtDate(day.date, { weekday:'long', month:'long', day:'numeric' }) }}
+          </div>
           <ul class="space-y-1.5">
             <li v-for="(e, i) in day.events" :key="i">
-              <RouterLink :to="e.to" class="flex items-center gap-2 text-sm rounded-lg px-1.5 py-1 -mx-1.5 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+              <RouterLink :to="e.to" class="flex items-center gap-2 text-sm rounded-xl px-2 py-1.5 -mx-1.5 transition-colors hover:bg-brand-500/6 dark:hover:bg-brand-400/10">
                 <span class="h-2 w-2 rounded-full shrink-0" :style="{ background: e.color }" />
                 <span class="capitalize text-[10px] chip">{{ t(e.kind) }}</span>
-                <span class="flex-1 truncate">{{ e.label }}</span>
-                <span v-if="e.sub" class="text-xs text-night-500">{{ e.sub }}</span>
+                <span class="flex-1 truncate font-medium text-night-800 dark:text-white">{{ e.label }}</span>
+                <span v-if="e.sub" class="text-xs text-night-500 dark:text-night-300">{{ e.sub }}</span>
               </RouterLink>
             </li>
           </ul>

@@ -35,13 +35,13 @@ function timeAgo(iso: string) {
 <template>
   <div class="relative">
     <button class="relative grid h-9 w-9 place-items-center rounded-xl text-night-500 dark:text-night-300
-                   hover:text-night-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                   hover:text-brand-700 dark:hover:text-brand-200 hover:bg-brand-500/10 dark:hover:bg-brand-400/15 transition-colors"
             :aria-label="store.unreadCount ? `Notifications, ${store.unreadCount} unread` : 'Notifications'"
             @click="open = !open">
       <Icon name="bell" :size="19" />
       <span v-if="store.unreadCount"
             class="absolute -top-0.5 -right-0.5 grid min-w-[17px] h-[17px] place-items-center rounded-full
-                   bg-red-500 px-1 text-[10px] font-bold text-white">
+                   bg-brand-500 px-1 text-[10px] font-bold text-white shadow-[0_0_10px_rgba(91,123,212,0.75)] animate-springIn">
         {{ store.unreadCount > 9 ? '9+' : store.unreadCount }}
       </span>
     </button>
